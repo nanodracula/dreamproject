@@ -421,7 +421,7 @@
           "baseForm": "は",
           "frequencyRank": 100,
           "details": "Topic marker particle.",
-          "translationInContext": "is",
+          "translationInContext": "topic marker",
           "otherTranslations": [],
           "writingPhonetic": "は",
           "writingTransliterated": "wa"
@@ -454,11 +454,11 @@
         },
         {
           "type": "word",
-          "partOfSpeech": "VERB",
+          "partOfSpeech": "AUX",
           "originalChunk": "です",
           "baseForm": "です",
           "frequencyRank": 100,
-          "details": "Polite copula.",
+          "details": "Adds politeness to the i-adjective predicate 楽しい.",
           "translationInContext": "is",
           "otherTranslations": [],
           "writingPhonetic": "です",
@@ -535,7 +535,7 @@
           "originalChunk": "です",
           "baseForm": "です",
           "frequencyRank": 100,
-          "details": "A polite copular ending.",
+          "details": "Adds politeness to the i-adjective predicate 忙しい.",
           "translationInContext": "is",
           "otherTranslations": [],
           "writingPhonetic": "です",
@@ -741,7 +741,7 @@
           "baseForm": "は",
           "frequencyRank": 100,
           "details": "Marks the preceding word as the topic of the sentence.",
-          "translationInContext": "is (topic marker)",
+          "translationInContext": "topic marker",
           "otherTranslations": [
             "as for"
           ],
@@ -778,11 +778,11 @@
         },
         {
           "type": "word",
-          "partOfSpeech": "VERB",
+          "partOfSpeech": "AUX",
           "originalChunk": "です",
           "baseForm": "です",
           "frequencyRank": 100,
-          "details": "Polite copula used at the end of sentences.",
+          "details": "Adds politeness to the i-adjective predicate 高い.",
           "translationInContext": "is/are",
           "otherTranslations": [
             "it is"
@@ -833,7 +833,7 @@
       "items": [
         {
           "type": "word",
-          "partOfSpeech": "NOUN",
+          "partOfSpeech": "PRON",
           "originalChunk": "私",
           "baseForm": "私",
           "frequencyRank": 100,
@@ -909,17 +909,17 @@
           "baseForm": "綺麗",
           "frequencyRank": 500,
           "details": "A 'na-adjective' that means both beautiful and clean.",
-          "translationInContext": "beautiful",
+          "translationInContext": "clean",
           "otherTranslations": [
-            "pretty",
-            "clean"
+            "beautiful",
+            "pretty"
           ],
           "writingPhonetic": "きれい",
           "writingTransliterated": "kirei"
         },
         {
           "type": "word",
-          "partOfSpeech": "VERB",
+          "partOfSpeech": "AUX",
           "originalChunk": "です",
           "baseForm": "です",
           "frequencyRank": 100,
@@ -973,7 +973,7 @@
         },
         {
           "type": "word",
-          "partOfSpeech": "VERB",
+          "partOfSpeech": "ADJ",
           "originalChunk": "忙しかった",
           "baseForm": "忙しい",
           "frequencyRank": 1000,
@@ -1147,7 +1147,7 @@
       "items": [
         {
           "type": "word",
-          "partOfSpeech": "NOUN",
+          "partOfSpeech": "PRON",
           "originalChunk": "私",
           "baseForm": "私",
           "frequencyRank": 100,
@@ -1302,7 +1302,7 @@
         },
         {
           "type": "word",
-          "partOfSpeech": "NOUN",
+          "partOfSpeech": "PRON",
           "originalChunk": "彼",
           "baseForm": "彼",
           "frequencyRank": 100,
@@ -1414,11 +1414,11 @@
         },
         {
           "type": "word",
-          "partOfSpeech": "VERB",
+          "partOfSpeech": "AUX",
           "originalChunk": "です",
           "baseForm": "だ",
           "frequencyRank": 100,
-          "details": "The polite form of the copula verb to be.",
+          "details": "Adds politeness to the i-adjective predicate いい.",
           "translationInContext": "is",
           "otherTranslations": [
             "to be"
@@ -1469,11 +1469,11 @@
       "items": [
         {
           "type": "word",
-          "partOfSpeech": "ADJ",
+          "partOfSpeech": "DET",
           "originalChunk": "この",
           "baseForm": "この",
           "frequencyRank": 100,
-          "details": "A demonstrative adjective used to point to something near the speaker.",
+          "details": "A demonstrative determiner used to point to something near the speaker.",
           "translationInContext": "this",
           "otherTranslations": [
             "this (near me or us)"
@@ -1540,7 +1540,7 @@
         },
         {
           "type": "word",
-          "partOfSpeech": "VERB",
+          "partOfSpeech": "AUX",
           "originalChunk": "です",
           "baseForm": "です",
           "frequencyRank": 100,
@@ -1599,7 +1599,7 @@
           "originalChunk": "です",
           "baseForm": "です",
           "frequencyRank": 100,
-          "details": "A polite copular ending.",
+          "details": "Adds politeness to the i-adjective predicate 難しい.",
           "translationInContext": "is",
           "otherTranslations": [],
           "writingPhonetic": "です",
@@ -1718,15 +1718,13 @@
         },
         {
           "type": "word",
-          "partOfSpeech": "VERB",
+          "partOfSpeech": "AUX",
           "originalChunk": "です",
           "baseForm": "です",
           "frequencyRank": 100,
-          "details": "Formal copula.",
+          "details": "Adds politeness to the i-adjective predicate 速い.",
           "translationInContext": "is",
-          "otherTranslations": [
-            "exalting copula"
-          ],
+          "otherTranslations": [],
           "writingPhonetic": "です",
           "writingTransliterated": "desu"
         },
@@ -2161,11 +2159,11 @@
         },
         {
           "type": "word",
-          "partOfSpeech": "AUX",
+          "partOfSpeech": "VERB",
           "originalChunk": "ください",
-          "baseForm": "ください",
+          "baseForm": "くださる",
           "frequencyRank": 100,
-          "details": "A polite request meaning please give me or please do.",
+          "details": "Imperative form of くださる, used here to ask for water; the object particle を is omitted in conversation.",
           "translationInContext": "please",
           "otherTranslations": [
             "please give me"
@@ -2390,7 +2388,7 @@
       "items": [
         {
           "type": "word",
-          "partOfSpeech": "NOUN",
+          "partOfSpeech": "PRON",
           "originalChunk": "これ",
           "baseForm": "これ",
           "frequencyRank": 100,
@@ -2418,9 +2416,9 @@
           "type": "word",
           "partOfSpeech": "ADJ",
           "originalChunk": "買いたい",
-          "baseForm": "買いたい",
+          "baseForm": "買う",
           "frequencyRank": 500,
-          "details": "Tai-form of the verb kau (to buy), expressing desire.",
+          "details": "The stem of 買う followed by たい, expressing a desire to buy.",
           "translationInContext": "want to buy",
           "otherTranslations": [
             "would like to purchase"
@@ -2515,7 +2513,7 @@
       "items": [
         {
           "type": "word",
-          "partOfSpeech": "NOUN",
+          "partOfSpeech": "PRON",
           "originalChunk": "彼",
           "baseForm": "彼",
           "frequencyRank": 500,
@@ -2784,9 +2782,9 @@
           "type": "word",
           "partOfSpeech": "VERB",
           "originalChunk": "わからない",
-          "baseForm": "わからない",
+          "baseForm": "分かる",
           "frequencyRank": 100,
-          "details": "The casual form of negative understanding (wakaru).",
+          "details": "The plain negative form of 分かる, to understand or know.",
           "translationInContext": "I don't understand",
           "otherTranslations": [
             "I don't know"
@@ -3007,9 +3005,7 @@
           "frequencyRank": 1000,
           "details": "Used to describe being occupied with tasks.",
           "translationInContext": "busy",
-          "otherTranslations": [
-            "crowded"
-          ],
+          "otherTranslations": [],
           "writingPhonetic": "いそがしい",
           "writingTransliterated": "isogashii"
         },
@@ -3019,7 +3015,7 @@
           "originalChunk": "です",
           "baseForm": "です",
           "frequencyRank": 100,
-          "details": "Polite copula.",
+          "details": "Adds politeness to the i-adjective predicate 忙しい.",
           "translationInContext": "is",
           "otherTranslations": [
             "am",
@@ -3130,7 +3126,7 @@
           "originalChunk": "です",
           "baseForm": "です",
           "frequencyRank": 100,
-          "details": "A polite copula that makes the permission question courteous.",
+          "details": "Adds politeness to the i-adjective predicate いい.",
           "translationInContext": "is",
           "otherTranslations": [],
           "writingPhonetic": "です",
@@ -4984,7 +4980,7 @@
           "originalChunk": "です",
           "baseForm": "です",
           "frequencyRank": 100,
-          "details": "The polite copula.",
+          "details": "Adds politeness to the i-adjective predicate 美しい.",
           "translationInContext": "is",
           "otherTranslations": [],
           "writingPhonetic": "です",
@@ -5881,7 +5877,7 @@
           "originalChunk": "ございません",
           "baseForm": "ござる",
           "frequencyRank": 500,
-          "details": "The polite negative form of ござる, the humble or formal equivalent of ある.",
+          "details": "The polite negative form of ござる, a formal equivalent of ある.",
           "translationInContext": "there is no",
           "otherTranslations": [],
           "writingPhonetic": "ございません",
@@ -6537,7 +6533,7 @@
           "originalChunk": "言います",
           "baseForm": "言う",
           "frequencyRank": 100,
-          "details": "The polite non-past form of 言う. Unlike 行く, 言う is pronounced iimasu without a glottal stop.",
+          "details": "The polite non-past form of 言う (いう), to say; 言います is read いいます (iimasu).",
           "translationInContext": "say",
           "otherTranslations": [],
           "writingPhonetic": "いいます",

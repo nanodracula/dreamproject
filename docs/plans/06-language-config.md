@@ -27,6 +27,10 @@ string in the request, as
 nativeWritingSystem: `${language.name} (${language.writingVariants.standard.promptLabel})`
 ```
 
+The Swift configuration names this field `promptName`; it is the English
+language description used in generation requests. User-facing language
+labels are localized separately.
+
 So the split is clean. **The client owns what a language is; the server owns
 how to prompt about it.** The per-language prompt guidance in `languageNotes`
 is prompt engineering and stays server-side.
@@ -55,7 +59,8 @@ nonisolated struct LearningLanguage: Identifiable, Equatable, Sendable {
     /// The regional variant used for learning content and pronunciation.
     /// Dates and numbers use the user's runtime locale instead.
     let contentLocale: String
-    let name: String
+    /// English language description for generation prompts, not a UI label.
+    let promptName: String
     let nativeName: String
     let emoji: String
     let writing: WritingVariants
@@ -103,7 +108,7 @@ extension LearningLanguage {
 
     static let japanese = LearningLanguage(
         code: "ja", contentLocale: "ja-JP",
-        name: "Japanese", nativeName: "日本語", emoji: "🇯🇵",
+        promptName: "Japanese", nativeName: "日本語", emoji: "🇯🇵",
         writing: WritingVariants(standard: "Kanji and kana", phonetic: "Hiragana", transliterated: "Romaji"),
         speech: SpeechSettings(),
         contentFontFamily: "Hiragino Sans",
@@ -112,7 +117,7 @@ extension LearningLanguage {
 
     static let mandarinTraditional = LearningLanguage(
         code: "zh-Hant", contentLocale: "zh-TW",
-        name: "Mandarin (Traditional)", nativeName: "繁體中文", emoji: "🇹🇼",
+        promptName: "Mandarin (Traditional)", nativeName: "繁體中文", emoji: "🇹🇼",
         writing: WritingVariants(
             standard: "Traditional Chinese",
             phonetic: "Zhuyin (Bopomofo)",
@@ -125,7 +130,7 @@ extension LearningLanguage {
 
     static let korean = LearningLanguage(
         code: "ko", contentLocale: "ko-KR",
-        name: "Korean", nativeName: "한국어", emoji: "🇰🇷",
+        promptName: "Korean", nativeName: "한국어", emoji: "🇰🇷",
         writing: WritingVariants(standard: "Hangul", transliterated: "Revised Romanization of Korean"),
         speech: SpeechSettings(),
         contentFontFamily: nil,
@@ -134,7 +139,7 @@ extension LearningLanguage {
 
     static let polish = LearningLanguage(
         code: "pl", contentLocale: "pl-PL",
-        name: "Polish", nativeName: "Polski", emoji: "🇵🇱",
+        promptName: "Polish", nativeName: "Polski", emoji: "🇵🇱",
         writing: WritingVariants(standard: "Polish Latin alphabet"),
         speech: SpeechSettings(),
         contentFontFamily: nil,
@@ -143,7 +148,7 @@ extension LearningLanguage {
 
     static let ukrainian = LearningLanguage(
         code: "uk", contentLocale: "uk-UA",
-        name: "Ukrainian", nativeName: "Українська", emoji: "🇺🇦",
+        promptName: "Ukrainian", nativeName: "Українська", emoji: "🇺🇦",
         writing: WritingVariants(standard: "Ukrainian Cyrillic", phonetic: "Pronunciation", transliterated: "Romanization"),
         speech: SpeechSettings(),
         contentFontFamily: nil,
@@ -221,7 +226,41 @@ extension LearningLanguage {
 ```
 
 Behaviour to preserve from the source: normalization never writes its result
-back to storage, and an unknown stored mode resolves to `.standardOnly`.
+back to storage. An unknown writing-mode string resolves to `.standardOnly`
+when decoded, before language-specific normalization runs. `normalized(_:)`
+cannot provide that fallback because its argument is already a valid enum.
+
+Add explicit decoding to `WritingDisplayMode` in
+`Core/Models/UserSettings.swift`; keep its existing raw-value encoding:
+
+```swift
+extension WritingDisplayMode {
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        self = Self(rawValue: rawValue) ?? .standardOnly
+    }
+}
+```
+
+Apply the same fallback to SQLite reads by replacing the empty
+`WritingDisplayMode: DatabaseValueConvertible` conformance in
+`Infrastructure/Persistence/Records/SettingsRecords.swift` with:
+
+```swift
+nonisolated extension WritingDisplayMode: DatabaseValueConvertible {
+    static func fromDatabaseValue(_ dbValue: DatabaseValue) -> Self? {
+        guard let rawValue = String.fromDatabaseValue(dbValue) else { return nil }
+        return Self(rawValue: rawValue) ?? .standardOnly
+    }
+}
+```
+
+This fallback handles unknown string values only; malformed types still fail
+decoding. Imports that parse a raw string directly use
+`WritingDisplayMode(rawValue: rawMode) ?? .standardOnly`. Decoding itself does
+not rewrite stored settings, and language-specific normalization remains a
+display-only operation.
 
 ## 4. Speech settings
 
@@ -246,20 +285,9 @@ Do not create the speech file in this phase; add it with its first caller.
 
 ## 5. Content font
 
-`contentFontFamily` stays a string in Core. Turning it into a `Font` belongs
-in `DesignSystem/Theme/Typography.swift`:
-
-```swift
-/// Content font for a learning language. Interface text never uses this;
-/// only words, sentences and their readings.
-static func content(_ language: LearningLanguage, size: CGFloat, weight: Font.Weight = .regular) -> Font {
-    guard let family = language.contentFontFamily else { return .system(size: size, weight: weight) }
-    return .custom(family, size: size).weight(weight)
-}
-```
-
-Do not create this file in this phase either; add it with the first view that
-renders learning content.
+`contentFontFamily` stays a string in Core. This plan adds no font helper.
+Content typography will be decided with the views that render learning
+content.
 
 ## 6. Server changes
 
@@ -297,7 +325,7 @@ emoji, writing-display helpers, and on-device speech settings stay client-side.
 | `shared/config/languages.ts` | Port client data by this plan; remove the server dependency during plan 04. Do not copy the TypeScript table. |
 | `shared/config/writing-display-mode.ts` | Port client rules by this plan, §3. Do not copy into the backend. |
 | `shared/contracts/database.ts` | Swift models and enum contracts already ported per plan 03. Plan 04 retains only backend-used contracts in `_shared/contracts/database.ts`. |
-| `shared/contracts/user-settings.ts` | Do not copy into the backend. Enums already in `UserSettings.swift`; defaults already inline in `AppDatabase.createInitialRecordsIfNeeded`, one call site, leave them. The zod `.catch(default)` leniency gets no Swift equivalent — validate at the import boundary, per plan 03. |
+| `shared/contracts/user-settings.ts` | Do not copy into the backend. Enums already in `UserSettings.swift`; defaults already inline in `AppDatabase.createInitialRecordsIfNeeded`, one call site, leave them. Unknown writing-mode strings fall back to `.standardOnly` during import and SQLite decoding per §3. Other settings retain import-boundary validation per plan 03. |
 | `shared/contracts/text-generation.ts` | Colocate backend schemas in `generate-text/index.ts` and its card-title workflow per §6. Client payload structs live in `Features/AddCard/Data/CardTitleGeneration.swift` when Add card lands. |
 | `src/i18n/config.ts`, `src/i18n/locales/**`, `src/i18n/plural.ts` | Dies. The interface language is the system's on iOS: the supported list becomes the project's localizations, strings move to `Resources/Localizable.xcstrings`, plurals become xcstrings plural variations. The `en` and `uk` strings themselves are worth carrying over. |
 | `src/theme/**` | Already recorded verbatim in `docs/design.md`; becomes `DesignSystem/Theme/`. |
@@ -317,6 +345,9 @@ emoji, writing-display helpers, and on-device speech settings stay client-side.
   for Korean and to `standardOnly` for Polish.
 - Confirm `LearningLanguage.with(code:)` returns `nil` for an unsupported code
   rather than a default language.
+- Confirm an unknown writing-mode string decodes as `.standardOnly` through
+  both `Codable` and SQLite, known modes retain their values, and decoding
+  does not write settings back to storage.
 - When speech is wired, confirm the rate conversion by ear against the old
   app; the failure is subtle and sounds like a voice that is merely fast.
 - During plan 04's server verification, confirm card-title requests retain
