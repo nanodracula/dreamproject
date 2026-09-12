@@ -1,6 +1,8 @@
 # Language configuration plan
 
-Status: planned, not implemented, September 12, 2026.
+Status: Swift side implemented and verified on September 13, 2026 (Xcode 26.6,
+GRDB 7.11.1). Server changes in §6 remain owned by plan 04. Speech (§4), the
+content font helper (§5), and the settings screens stay deferred.
 Source: `dreamproject-old` `shared/config/languages.ts` and
 `shared/config/writing-display-mode.ts` at `effe870`.
 Target: `apps/ios/DreamApp/Core/Models/LearningLanguage.swift`.

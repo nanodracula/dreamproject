@@ -33,4 +33,11 @@ nonisolated extension UserLearningLanguageSettings: FetchableRecord, Persistable
 }
 
 nonisolated extension KnowledgeLevel: DatabaseValueConvertible {}
-nonisolated extension WritingDisplayMode: DatabaseValueConvertible {}
+nonisolated extension WritingDisplayMode: DatabaseValueConvertible {
+    /// Unknown strings read as `.standardOnly`, matching `Codable` decoding.
+    /// Nothing is written back; malformed types still fail.
+    static func fromDatabaseValue(_ dbValue: DatabaseValue) -> Self? {
+        guard let rawValue = String.fromDatabaseValue(dbValue) else { return nil }
+        return Self(rawValue: rawValue) ?? .standardOnly
+    }
+}

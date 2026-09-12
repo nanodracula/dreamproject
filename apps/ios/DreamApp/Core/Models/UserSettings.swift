@@ -25,6 +25,17 @@ nonisolated enum WritingDisplayMode: String, Codable, Sendable, CaseIterable {
     case standardAndPhoneticAndTransliterated
 }
 
+nonisolated extension WritingDisplayMode {
+    /// Unknown strings decode as `.standardOnly`; language-specific
+    /// normalization happens later, for display only. Encoding stays the
+    /// raw value.
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        self = Self(rawValue: rawValue) ?? .standardOnly
+    }
+}
+
 /// An enrolled learning language and its settings. One row per
 /// `(user_id, language_code)` pair.
 nonisolated struct UserLearningLanguageSettings: Codable, Equatable, Sendable {
