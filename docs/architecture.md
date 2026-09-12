@@ -11,7 +11,7 @@
 - **App** owns application setup, shared dependencies, and navigation between features.
 - **Features** own their UI, presentation state, business logic, and feature-specific data access.
 - **Core** contains shared domain models, pure business rules, and contracts. It remains independent of UI, persistence, and external SDKs.
-- **Infrastructure** implements persistence, networking, and platform integrations.
+- **Infrastructure** implements persistence, networking, and platform integrations etc.
 - **SharedUI** contains reusable domain views.
 - **DesignSystem** contains generic UI components and shared visual styles.
 

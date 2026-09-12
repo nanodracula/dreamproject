@@ -89,6 +89,7 @@ final class Pronunciation {
     @ObservationIgnored private let utterances = UtteranceRouter()
     @ObservationIgnored private var current: Operation?
     @ObservationIgnored private var interruptionWatch: Task<Void, Never>?
+    @ObservationIgnored private var routeWatch: Task<Void, Never>?
 
     private enum Mode {
         case live(MediaCache)
@@ -126,6 +127,20 @@ final class Pronunciation {
                 await self.interrupted()
             }
         }
+        routeWatch = Task { [weak self] in
+            let lost = AVAudioSession.RouteChangeReason.oldDeviceUnavailable.rawValue
+            let notifications = NotificationCenter.default.notifications(named: AVAudioSession.routeChangeNotification)
+            for await notification in notifications {
+                guard notification.userInfo?[AVAudioSessionRouteChangeReasonKey] as? UInt == lost else { continue }
+                guard let self else { return }
+                self.routeLost()
+            }
+        }
+    }
+
+    deinit {
+        interruptionWatch?.cancel()
+        routeWatch?.cancel()
     }
 
     func isActive(_ key: Key) -> Bool {
@@ -159,6 +174,14 @@ final class Pronunciation {
         do {
             try await withTaskCancellationHandler {
                 try await task.value
+                // A completion that settled just before a stop, replacement,
+                // or caller cancellation still counts as interrupted: the
+                // awaiting caller must not continue.
+                try Task.checkCancellation()
+                guard !task.isCancelled,
+                      current?.id == operationID,
+                      activity?.operationID == operationID
+                else { throw CancellationError() }
             } onCancel: {
                 task.cancel()
             }
@@ -220,13 +243,23 @@ final class Pronunciation {
         await session.interrupted()
     }
 
+    /// Headphones or a Bluetooth output went away. Playback stops rather
+    /// than carrying on through the speaker. Unlike an interruption the
+    /// session stays active; the usual idle release handles it once the
+    /// cancelled `play()` unwinds.
+    private func routeLost() {
+        current?.task.cancel()
+        activity = nil
+    }
+
     private func previewPlayback(_ completesAfter: Duration?, operationID: UUID) async throws {
         setPhase(.playing, for: operationID)
         if let completesAfter {
             try await Task.sleep(for: completesAfter)
         } else {
             // Never yields; the iterator still returns on cancellation.
-            for await _ in AsyncStream<Never> { _ in } {}
+            let never = AsyncStream<Never> { _ in }
+            for await _ in never {}
             try Task.checkCancellation()
         }
     }
