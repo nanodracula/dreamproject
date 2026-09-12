@@ -1,6 +1,8 @@
 # Settings storage plan
 
-Status: planned; implementation has not started.
+Status: implemented and verified on September 12, 2026 (GRDB 7.11.1, Xcode 26.6).
+Code: `apps/ios/DreamApp/Database/AppDatabase.swift`,
+`apps/ios/DreamApp/Settings/`, tests in `apps/ios/DreamAppTests/`.
 
 Use GRDB for account and learning settings, and `UserDefaults` for device
 preferences. This phase implements settings persistence only.

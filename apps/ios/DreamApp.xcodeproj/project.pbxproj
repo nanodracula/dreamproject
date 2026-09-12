@@ -5,8 +5,24 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		D00000000000000000000012 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = D00000000000000000000011 /* GRDB */; };
+		D0000000000000000000001F /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = D0000000000000000000001E /* GRDB */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D00000000000000000000019 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D00000000000000000000009 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D00000000000000000000006;
+			remoteInfo = DreamApp;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		D00000000000000000000001 /* DreamApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DreamApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D00000000000000000000013 /* DreamAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DreamAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -15,13 +31,28 @@
 			path = DreamApp;
 			sourceTree = "<group>";
 		};
+		D00000000000000000000014 /* DreamAppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = DreamAppTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		D00000000000000000000003 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
-			files = ();
+			files = (
+				D00000000000000000000012 /* GRDB in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D00000000000000000000015 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D0000000000000000000001F /* GRDB in Frameworks */,
+			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -31,13 +62,17 @@
 			isa = PBXGroup;
 			children = (
 				D00000000000000000000002 /* DreamApp */,
+				D00000000000000000000014 /* DreamAppTests */,
 				D00000000000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
 		D00000000000000000000005 /* Products */ = {
 			isa = PBXGroup;
-			children = (D00000000000000000000001 /* DreamApp.app */);
+			children = (
+				D00000000000000000000001 /* DreamApp.app */,
+				D00000000000000000000013 /* DreamAppTests.xctest */,
+			);
 			name = Products;
 			sourceTree = "<group>";
 		};
@@ -56,10 +91,33 @@
 			dependencies = ();
 			fileSystemSynchronizedGroups = (D00000000000000000000002 /* DreamApp */);
 			name = DreamApp;
-			packageProductDependencies = ();
+			packageProductDependencies = (
+				D00000000000000000000011 /* GRDB */,
+			);
 			productName = DreamApp;
 			productReference = D00000000000000000000001 /* DreamApp.app */;
 			productType = "com.apple.product-type.application";
+		};
+		D00000000000000000000018 /* DreamAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D0000000000000000000001B /* Build configuration list for PBXNativeTarget "DreamAppTests" */;
+			buildPhases = (
+				D00000000000000000000017 /* Sources */,
+				D00000000000000000000015 /* Frameworks */,
+				D00000000000000000000016 /* Resources */,
+			);
+			buildRules = ();
+			dependencies = (
+				D0000000000000000000001A /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (D00000000000000000000014 /* DreamAppTests */);
+			name = DreamAppTests;
+			packageProductDependencies = (
+				D0000000000000000000001E /* GRDB */,
+			);
+			productName = DreamAppTests;
+			productReference = D00000000000000000000013 /* DreamAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -72,6 +130,7 @@
 				LastUpgradeCheck = 2660;
 				TargetAttributes = {
 					D00000000000000000000006 = {CreatedOnToolsVersion = 26.6; };
+					D00000000000000000000018 = {CreatedOnToolsVersion = 26.6; TestTargetID = D00000000000000000000006; };
 				};
 			};
 			buildConfigurationList = D0000000000000000000000B /* Build configuration list for PBXProject "DreamApp" */;
@@ -80,16 +139,28 @@
 			knownRegions = (en, Base);
 			mainGroup = D00000000000000000000004;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				D00000000000000000000010 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D00000000000000000000005 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (D00000000000000000000006 /* DreamApp */);
+			targets = (
+				D00000000000000000000006 /* DreamApp */,
+				D00000000000000000000018 /* DreamAppTests */,
+			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D00000000000000000000008 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D00000000000000000000016 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = ();
@@ -104,7 +175,21 @@
 			files = ();
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		D00000000000000000000017 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = ();
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D0000000000000000000001A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D00000000000000000000006 /* DreamApp */;
+			targetProxy = D00000000000000000000019 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D0000000000000000000000C /* Debug */ = {
@@ -205,6 +290,48 @@
 			};
 			name = Release;
 		};
+		D0000000000000000000001C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.DreamProjectTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DreamApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DreamApp";
+			};
+			name = Debug;
+		};
+		D0000000000000000000001D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.example.DreamProjectTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/DreamApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/DreamApp";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -220,7 +347,37 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		D0000000000000000000001B /* Build configuration list for PBXNativeTarget "DreamAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (D0000000000000000000001C /* Debug */, D0000000000000000000001D /* Release */);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		D00000000000000000000010 /* XCRemoteSwiftPackageReference "GRDB.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/groue/GRDB.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.11.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		D00000000000000000000011 /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D00000000000000000000010 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
+		};
+		D0000000000000000000001E /* GRDB */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D00000000000000000000010 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
+			productName = GRDB;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = D00000000000000000000009 /* Project object */;
 }

@@ -2,7 +2,9 @@
 
 Native SwiftUI app: **DreamApp**, iPhone/iPad, iOS 26.0+, Swift 6.
 Bundle ID: `com.example.DreamProject`. Project and shared scheme: `DreamApp`.
-Sources: `apps/ios/DreamApp/` (synchronized folder).
+Sources: `apps/ios/DreamApp/`; tests: `apps/ios/DreamAppTests/` (synchronized folders).
+Dependency: [GRDB](https://github.com/groue/GRDB.swift) 7 (Swift package, resolved by Xcode).
+Settings storage: see `docs/02-settings-storage.md`.
 
 ## Setup
 
@@ -27,13 +29,15 @@ and runs `mise install`. Safe to rerun; no shell activation required.
 ```sh
 mise run ios:build               # build for Simulator
 mise run ios:run                 # build, install, launch on iPhone 17 Pro
-xed apps/ios                    # open Xcode; Cmd+R builds and runs
+xed apps/ios                    # open Xcode; Cmd+R builds and runs, Cmd+U tests
 xcrun simctl list devices available
 IOS_SIMULATOR_ID=<UDID> mise run ios:run
-
-# Available after the deferred test target is added:
 mise run ios:test -- -destination "platform=iOS Simulator,id=<UDID>"
 ```
+
+`ios:test` runs the `DreamAppTests` unit tests (Swift Testing) on the given
+Simulator destination. The tests use in-memory databases and isolated
+`UserDefaults` suites; nothing touches the app's own data.
 
 Tasks in `mise.toml` call `tools/run-ios.sh build|test|run`, which resolves
 `apps/ios/` automatically. Platform configuration stays with the app;

@@ -52,7 +52,8 @@ possible, so target membership and resource inclusion must be verified.
 ## Current repository state
 
 - Steps 1–3, 5, and 6 are implemented. Step 4 paths are verified; the
-  `DreamAppTests` target and application tests are deferred by user request.
+  `DreamAppTests` target was added with the settings storage phase
+  (`docs/02-settings-storage.md`).
 - Step 7 checks passed for the implemented scope on September 12, 2026:
   Xcode opening and shared scheme discovery, Simulator build/launch, portable
   paths, actual app build inputs, shell syntax, task definitions, ignore rules,
@@ -167,6 +168,6 @@ introduced. Node.js, Java, Fastlane, and Docker are not initial prerequisites.
 ## Current scope
 
 The initial iOS setup is implemented and verified for the agreed scope.
-Application tests remain deferred; no test target was added during verification.
+The `DreamAppTests` target was added later, in the settings storage phase.
 Web and backend implementation, shared packages, app icon artwork, device signing,
 and Docker image definitions remain future work. The CI Dockerfile is empty.
