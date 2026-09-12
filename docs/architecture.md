@@ -175,7 +175,10 @@ apps/ios/DreamApp/
 │   └── Notifications/                       (planned)
 │
 ├── Config/
-│   └── AppConfiguration.swift
+│   ├── AppConfiguration.swift              // reads the substituted Info.plist values
+│   ├── Info.plist
+│   ├── Dev.xcconfig                        // base configuration of Debug
+│   └── Prod.xcconfig                       // base configuration of Release
 │
 └── Resources/
     ├── Assets.xcassets

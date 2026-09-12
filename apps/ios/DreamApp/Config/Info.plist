@@ -7,5 +7,9 @@
 		<key>UIColorName</key>
 		<string>LaunchBackground</string>
 	</dict>
+	<key>SUPABASE_ANON_KEY</key>
+	<string>$(SUPABASE_ANON_KEY)</string>
+	<key>SUPABASE_HOST</key>
+	<string>$(SUPABASE_HOST)</string>
 </dict>
 </plist>

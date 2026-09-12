@@ -1,0 +1,10 @@
+// Prod environment: the base configuration of Release builds.
+//
+// The anon key is public by design and ships inside the IPA regardless;
+// row-level security protects the data. Server credentials never belong here.
+// The host carries no scheme because xcconfig treats // as a comment;
+// AppConfiguration prepends https://.
+SUPABASE_HOST = dreamproject-supabase-7b2379-187-77-132-199.sslip.io
+SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpYXQiOjE3ODUzMzEzOTAsImV4cCI6MTg5MzQ1NjAwMCwicm9sZSI6ImFub24iLCJpc3MiOiJzdXBhYmFzZSJ9.8SJCmecqiUAOk42K0kgUzbgep_xjxoi9wCsUu9rSVbs
+PRODUCT_BUNDLE_IDENTIFIER = com.example.DreamProject
+INFOPLIST_KEY_CFBundleDisplayName = DreamApp

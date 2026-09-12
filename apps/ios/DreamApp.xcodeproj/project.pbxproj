@@ -29,7 +29,11 @@
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		D00000000000000000000020 /* Exceptions for DreamApp folder in DreamApp target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (Config/Info.plist);
+			membershipExceptions = (
+				Config/Dev.xcconfig,
+				Config/Info.plist,
+				Config/Prod.xcconfig,
+			);
 			target = D00000000000000000000006 /* DreamApp */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -247,6 +251,8 @@
 		};
 		D0000000000000000000000E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = D00000000000000000000002 /* DreamApp */;
+			baseConfigurationReferenceRelativePath = Config/Dev.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -261,7 +267,6 @@
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.DreamProject;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;
@@ -277,6 +282,8 @@
 		};
 		D0000000000000000000000F /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = D00000000000000000000002 /* DreamApp */;
+			baseConfigurationReferenceRelativePath = Config/Prod.xcconfig;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -291,7 +298,6 @@
 				INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
 				LD_RUNPATH_SEARCH_PATHS = ("$(inherited)", "@executable_path/Frameworks");
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.example.DreamProject;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
 				SUPPORTS_MACCATALYST = NO;

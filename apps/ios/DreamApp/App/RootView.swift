@@ -8,6 +8,9 @@ struct RootView: View {
             Image(systemName: "globe")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
+                .padding(.bottom)
+            Text("こんにちは、世界！")
+                .font(.largeTitle)
         }
         .padding()
     }

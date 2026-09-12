@@ -12,8 +12,8 @@ changes are outside this plan.
 
 ## 1. Client configuration
 
-The iOS app needs `SUPABASE_URL` and the anon key. The anon key is public by
-design — row-level security protects database access, with the existing
+The iOS app needs the Supabase host and the anon key. The anon key is public
+by design — row-level security protects database access, with the existing
 policies allowing `select` on `status = 'published'` for `anon` and
 `authenticated`, all writes to `service_role`, and storage insert/select/delete
 gated on `(storage.foldername(name))[1] = auth.uid()::text`. It ships inside
@@ -22,28 +22,55 @@ to hide it. The `ugc-*` buckets are intentionally public: anyone with an asset
 URL can download it. The ownership policies restrict uploads, listing, and
 deletion; they do not make public downloads private.
 
-Both values are two constants in `DreamApp/Config/AppConfiguration.swift`:
+There are two environments, dev and prod, and the environment is a build
+setting. `DreamApp/Config/Dev.xcconfig` is the base configuration of Debug and
+`DreamApp/Config/Prod.xcconfig` of Release. Each sets the host, the anon key,
+the bundle identifier, and the display name, so dev and prod builds install
+side by side:
+
+```xcconfig
+SUPABASE_HOST = dreamproject-supabase-7b2379-187-77-132-199.sslip.io
+SUPABASE_ANON_KEY = <the anon key; role claim "anon">
+PRODUCT_BUNDLE_IDENTIFIER = com.example.DreamProject
+INFOPLIST_KEY_CFBundleDisplayName = DreamApp
+```
+
+The host carries no scheme because xcconfig treats `//` as a comment;
+`AppConfiguration` prepends `https://`. `PRODUCT_BUNDLE_IDENTIFIER` is not set
+in the project file, since target settings would override the xcconfig.
+`com.example.DreamProject` is still the template placeholder; choose a real
+identifier before distribution. The dev instance does not exist yet, so
+`Dev.xcconfig` carries the production host and key behind a marker comment
+until it does; dev builds already get the `.dev` bundle suffix and the
+"DreamApp Dev" name, and their own Keychain session.
+
+`DreamApp/Config/Info.plist` carries `SUPABASE_HOST` and `SUPABASE_ANON_KEY`
+entries whose `$(…)` values are substituted at build time. The two xcconfigs
+and Info.plist live inside the synchronized folder with membership exceptions,
+so they are processed as configuration rather than copied into the bundle.
+
+`DreamApp/Config/AppConfiguration.swift` reads the values with a throwing
+lookup and crashing accessors, because a missing or empty key is a build
+mistake nothing can recover from at runtime:
 
 ```swift
 nonisolated enum AppConfiguration {
-    static let supabaseURL = URL(string: "https://dreamproject-supabase-7b2379-187-77-132-199.sslip.io")!
-    static let supabaseAnonKey = "<the anon key; role claim \"anon\">"
+    static let supabaseURL = URL(string: "https://" + (try! value(for: "SUPABASE_HOST") as String))!
+    static let supabaseAnonKey: String = try! value(for: "SUPABASE_ANON_KEY")
+    static func value<T: LosslessStringConvertible>(for key: String) throws(Error) -> T
 }
 ```
 
-There is no runtime environment on iOS. Expo's `EXPO_PUBLIC_*` values were
-inlined at bundle time, and the Xcode equivalent is a build setting: an
-xcconfig feeding Info.plist. That route only pays off when Debug and Release
-need different values, such as a staging instance. With one self-hosted
-instance and public values, the constants do the same job without a
-project-file reference, Info.plist keys, or a `Bundle.main` lookup. If a
-staging stack appears, wrap the two values in `#if DEBUG` first; bring
-xcconfig back only when that is not enough.
+To debug against prod, switch Debug's base configuration to `Prod.xcconfig` in
+the project's Info tab; no code changes. There is no runtime environment on
+iOS: Expo's `EXPO_PUBLIC_*` values were inlined at bundle time, and build
+settings are the Xcode equivalent.
 
 The `service_role` key must never reach anything the app can read; it stays
 in the Dokploy environment. The deployment scripts do not need it in
 `server/.env.local`. No ignored local config, example copy, or manual setup
-step is needed.
+step is needed. A second Supabase stack will also need its own operator env
+file on the server side; that is separate work.
 
 ## 2. Client and anonymous session
 
@@ -149,8 +176,11 @@ caller yet and is planned separately in [plan 09](09-content-import.md).
 
 Done on September 13, 2026:
 
-- Unsigned Debug and Release builds for generic iOS. `Package.resolved` pins
-  supabase-swift 2.55.2.
+- Unsigned Debug and Release builds for generic iOS. The Debug plist carries
+  `com.example.DreamProject.dev`, "DreamApp Dev", and the host and anon key;
+  the Release plist carries `com.example.DreamProject`, "DreamApp", and the
+  same values. No xcconfig is copied into either bundle. `Package.resolved`
+  pins supabase-swift 2.55.2.
 - The anon key's JWT payload has `"role": "anon"`, not `service_role`.
 
 Still to run from the app (needs a device or the simulator; ask first):
@@ -190,8 +220,8 @@ September 13, 2026:
 6. Feature and infrastructure protocols (`CardTitleGenerating`,
    `MediaUploading`) were added up front, per the architecture rule for
    network dependencies.
-7. The xcconfig and Info.plist route was implemented first and then replaced
-   by the two constants in §1: with one instance, nothing needed a
-   per-configuration value. While it existed, Xcode 26 stripped the `//` in
-   `https:$()//host` before substitution; `https:/$()/host` was the working
-   form.
+7. Configuration went through three shapes on September 13, 2026: one
+   committed xcconfig with the full URL, then two Swift constants while there
+   was a single instance, then the per-environment xcconfigs in §1 once a dev
+   environment was decided. Xcode 26 strips the `//` in `https:$()//host`
+   before substitution, so the host is stored without a scheme.
