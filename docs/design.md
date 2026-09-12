@@ -173,39 +173,12 @@ From `app.json`:
 
 `StatusBar` style is `light`, set in `NavigationThemeProvider`.
 
-#### Forcing dark in the Swift app
+#### Project configuration
 
-The app is dark-only by design, not dark-by-default. In Expo this is
-`userInterfaceStyle: "dark"`, which compiles to the `UIUserInterfaceStyle`
-Info.plist key. The equivalent belongs in the Xcode project's metadata, not in
-SwiftUI code.
-
-`DreamApp` has no `Info.plist` file — `GENERATE_INFOPLIST_FILE = YES` and the
-keys come from build settings. So add to both the Debug and Release
-configurations of the app target:
-
-```
-INFOPLIST_KEY_UIUserInterfaceStyle = Dark;
-```
-
-That covers the whole app, including things a SwiftUI modifier cannot reach:
-the generated launch screen, alerts and action sheets, the keyboard appearance,
-share sheets, and any UIKit-presented system UI.
-
-`.preferredColorScheme(.dark)` on the root view is not a substitute. It applies
-to the SwiftUI view tree only, leaves system-presented surfaces following the
-device setting, and can flash light during launch before the first frame. Use
-the build setting; a root-view modifier is then unnecessary.
-
-Two related differences from the Expo project, for whoever ports the chrome:
-
-- The old app is portrait-only (`"orientation": "portrait"`). The current Xcode
-  project allows landscape on iPhone via
-  `INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone`. Narrow it to
-  `UIInterfaceOrientationPortrait` to match.
-- The Expo splash background is `#208AEF` while the app background is
-  `#151c26`; `UILaunchScreen_Generation` currently produces a plain launch
-  screen with neither.
+The app is dark-only, portrait-only, and launches on the splash blue. Those are
+Xcode build settings rather than design values, so they live in
+`docs/ios-configuration.md` along with the rest of the project-level
+configuration this reference implies.
 
 #### Navigation theme
 
