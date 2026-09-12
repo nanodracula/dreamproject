@@ -16,7 +16,7 @@ DreamProject/
 │   ├── run-ios.sh               # build, test, and run the iOS app
 │   └── db/
 ├── docs/
-│   └── 01 Init                  # this Markdown plan
+│   └── 01-init.md               # this Markdown plan
 ├── .gitignore
 ├── mise.toml
 ├── AGENTS.md
@@ -51,13 +51,17 @@ possible, so target membership and resource inclusion must be verified.
 
 ## Current repository state
 
-- Only this plan exists, at `docs/01 Init`.
-- Git has not been initialized.
-- `AGENTS.md`, the `CLAUDE.md` symbolic link, and the application scaffolding
-  have not been created.
-- Xcode is selected at `/Applications/Xcode.app/Contents/Developer` on the
-  current machine; its version and simulator availability still need checking.
-- Mise is not currently available on PATH.
+- Steps 1–3, 5, and 6 are implemented. Step 4 paths are verified; the
+  `DreamAppTests` target and application tests are deferred by user request.
+- Step 7 checks passed for the implemented scope on September 12, 2026:
+  Xcode opening and shared scheme discovery, Simulator build/launch, portable
+  paths, actual app build inputs, shell syntax, task definitions, ignore rules,
+  and the empty CI Dockerfile.
+- Bootstrap passed with the installed mise and in a temporary fixture using the
+  official installer, followed by off-PATH and on-PATH reuse checks. Only the
+  installation path was redirected in the fixture; the user's mise was unchanged.
+- Selected tools: Xcode 26.6 (17F113), iOS Simulator 26.5 (23F77), mise 2026.9.5.
+- The concise README intentionally omits a repository tree, per user preference.
 
 ## Backend choice
 
@@ -84,7 +88,7 @@ introduced. Node.js, Java, Fastlane, and Docker are not initial prerequisites.
 1. **Initialize repository metadata and create the directory structure.**
    Initialize Git with an initial branch named `main`; leave commits for a
    separate step. Create an empty `AGENTS.md` and a relative symbolic link
-   `CLAUDE.md -> AGENTS.md`. Keep this plan at `docs/01 Init`.
+   `CLAUDE.md -> AGENTS.md`. Keep this plan at `docs/01-init.md`.
    Create `apps/ios/`, `apps/web/`, `server/supabase/`,
    `tools/ci/`, `tools/db/`, and `docs/` as shown above.
    Use `.gitkeep` files where an otherwise empty directory needs to be tracked
@@ -139,7 +143,7 @@ introduced. Node.js, Java, Fastlane, and Docker are not initial prerequisites.
    Create `tools/ci/Dockerfile` and leave it empty. Docker image definition and
    builds are later work; the empty placeholder is not a buildable image.
 
-   Write a root `README.md` with the repository layout, declared tools,
+   Write a concise root `README.md` with declared tools,
    prerequisites, bootstrap command, and implemented mise commands. Document
    `xed apps/ios` as the Xcode opening command from the repository root;
    opening `apps/ios/DreamApp.xcodeproj` directly also works.
@@ -162,8 +166,7 @@ introduced. Node.js, Java, Fastlane, and Docker are not initial prerequisites.
 
 ## Current scope
 
-This update changes only the Markdown plan at `docs/01 Init`. All repository
-initialization, directory creation, iOS scaffolding, `.gitignore`, bootstrap
-tooling, mise installation and configuration, the empty CI Dockerfile, and
-README creation remain planned. Web app implementation, shared
-packages, and Docker image definitions will be added when needed.
+The initial iOS setup is implemented and verified for the agreed scope.
+Application tests remain deferred; no test target was added during verification.
+Web and backend implementation, shared packages, app icon artwork, device signing,
+and Docker image definitions remain future work. The CI Dockerfile is empty.
