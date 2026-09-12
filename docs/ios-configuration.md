@@ -6,15 +6,22 @@ Design values belong in `docs/design.md`; layering rules belong in
 `docs/architecture.md`. This file is for the settings that have to change for
 the app to behave like the Expo app it replaces.
 
-`DreamApp` has no `Info.plist` file. `GENERATE_INFOPLIST_FILE = YES`, so every
-key comes from `INFOPLIST_KEY_*` build settings in
-`apps/ios/DreamApp.xcodeproj/project.pbxproj`. Each setting below is applied to
-both the Debug and Release configurations of the app target.
+`DreamApp` uses `apps/ios/DreamApp/Resources/Info.plist` for its launch-screen dictionary.
+`GENERATE_INFOPLIST_FILE = YES` lets Xcode merge that file with standard metadata
+and supported `INFOPLIST_KEY_*` build settings from
+`apps/ios/DreamApp.xcodeproj/project.pbxproj`. Settings below apply to both Debug
+and Release. The source plist is excluded from the synchronized folder's target
+membership so it is processed as configuration rather than copied as a resource.
 
 ## Applied
 
-Changed on September 12, 2026. Written directly into `project.pbxproj`; not yet
-built or run, because this repository has no macOS or Xcode available.
+Configuration updated on September 13, 2026.
+
+Unsigned Debug and Release builds for generic iOS succeeded with Xcode 26.6.
+Both built app plists were inspected: `UILaunchScreen.UIColorName` is
+`LaunchBackground`, `UIUserInterfaceStyle` is `Dark`, `UIDeviceFamily` contains
+only `1`, and the iPhone orientation list contains only portrait. Launch appearance
+has not yet been checked on a device or simulator.
 
 ### Dark appearance
 
@@ -28,17 +35,16 @@ The app is dark-only by design, not dark-by-default. In Expo this was
 setting, so a phone in light mode gets light alerts, a light keyboard, light
 share sheets, and light SwiftUI default colors.
 
-This covers surfaces a SwiftUI modifier cannot reach: the generated launch
-screen, alerts and action sheets, keyboard appearance, share sheets, and any
-UIKit-presented system UI.
+The plist declares the app-wide appearance before SwiftUI starts.
+`.preferredColorScheme(.dark)` is also valid: it sets the appearance of the
+enclosing presentation, such as a window or sheet, rather than just child views.
+It does not configure the system launch screen. For this permanently dark app,
+a root-view modifier would duplicate the plist policy and is unnecessary.
+Use a SwiftUI preference if a future theme switch or individual presentation
+needs a different appearance.
 
-`.preferredColorScheme(.dark)` on the root view is not a substitute. It applies
-to the SwiftUI view tree only, leaves system-presented surfaces following the
-device setting, and can flash light during launch before the first frame. With
-this build setting in place, a root-view modifier is unnecessary — do not add one.
-
-The status bar needs no separate setting: it follows the interface style, which
-matches the Expo app's explicit `StatusBar style="light"`.
+The default status-bar style adapts to the interface style. No separate override
+is currently needed; revisit this if a screen overrides its appearance.
 
 ### iPhone only, portrait only
 
@@ -61,13 +67,21 @@ if native iPad support is added later.
 
 ### Launch screen background
 
-```
-INFOPLIST_KEY_UILaunchScreen_BackgroundColor = LaunchBackground;
+```xml
+<key>UILaunchScreen</key>
+<dict>
+    <key>UIColorName</key>
+    <string>LaunchBackground</string>
+</dict>
 ```
 
-`UILaunchScreen_Generation = YES` with no background key produces a plain
-system-background launch screen, so launching in light mode flashes white before
-the app's first dark frame.
+This dictionary in `DreamApp/Resources/Info.plist` gives the system launch screen an
+explicit blue background. Both app configurations set
+`INFOPLIST_FILE = DreamApp/Resources/Info.plist`.
+`INFOPLIST_KEY_UILaunchScreen_Generation` is removed because the source plist now
+supplies the dictionary. The previous `INFOPLIST_KEY_UILaunchScreen_BackgroundColor`
+setting was unsupported: arbitrary `INFOPLIST_KEY_*` names do not generate nested
+plist entries.
 
 `LaunchBackground` is a color set added at
 `apps/ios/DreamApp/Resources/Assets.xcassets/LaunchBackground.colorset/`,
@@ -75,7 +89,7 @@ sRGB `#208AEF` at full alpha — the Expo splash background. The asset catalog i
 inside a synchronized folder group, so the new color set needs no `project.pbxproj`
 file reference.
 
-The setting takes the *name of a color set*, not a hex value; a literal color
+`UIColorName` takes the *name of a color set*, not a hex value; a literal color
 there will not resolve.
 
 ## Open items
@@ -89,15 +103,16 @@ centered on the blue, and the app then cross-faded it out over 600ms
 (hold 20%, fade 50%, scaling 1 → 0.96, `Easing.out(Easing.quad)`); the full
 animation is recorded under Navigation and shared chrome in `docs/design.md`.
 
-The launch screen is currently the blue background only. A generated launch
-screen can also show a centered image through
-`INFOPLIST_KEY_UILaunchScreen_ImageName`, which needs an image set in the asset
-catalog. The animated hand-off is app code, not configuration, and would be a
-SwiftUI view over the root.
+The launch screen is currently the blue background only. To add a static logo,
+add an image set to the asset catalog and reference it with `UIImageName` inside
+the `UILaunchScreen` dictionary. If precise size and positioning require layout
+constraints, use a launch storyboard. The animated hand-off is deferred; it would
+be a SwiftUI view over the root, not launch-screen configuration.
 
 ### Bundle identifier
 
 `PRODUCT_BUNDLE_IDENTIFIER = com.example.DreamProject` is the template
 placeholder. The Expo app used `com.anonymous.dreamproject`, itself a
-placeholder. A real identifier is needed before any device build, TestFlight
-upload, or push/Sign in with Apple capability.
+placeholder. Choose a stable, unique identifier before distribution or configuring
+push notifications or Sign in with Apple. Development device builds also need
+signing and provisioning for the chosen identifier.
