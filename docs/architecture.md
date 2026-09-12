@@ -32,7 +32,7 @@ Shared layers never depend on features. Features never depend on each other.
 ## Models and GRDB (decision: option B)
 
 - Core models are plain `Codable` structs: no `import GRDB`, no `CodingKeys` for column names, no `Columns`.
-- GRDB conformance lives in `Infrastructure/Persistence/Records/<Domain>Records.swift` (`ContentRecords`, `SettingsRecords`): `FetchableRecord`, `PersistableRecord`, `databaseTableName`, snake_case column strategies, `Columns`, reusable request builders, and `DatabaseValueConvertible` for the domain's enums.
+- GRDB conformance lives in `Infrastructure/Database/Records/<Domain>Records.swift` (`ContentRecords`, `SettingsRecords`): `FetchableRecord`, `PersistableRecord`, `databaseTableName`, snake_case column strategies, `Columns`, reusable request builders, and `DatabaseValueConvertible` for the domain's enums.
 - Extensions in Infrastructure are `nonisolated`. The project defaults to main-actor isolation, and GRDB conformances must not be actor-isolated.
 - No separate record types or mappers.
 - Language codes are strings in the database. `LearningLanguage` in Core is a config value listing supported languages, never a column type.
@@ -153,7 +153,7 @@ apps/ios/DreamApp/
 ├── Infrastructure/
 │   ├── Preferences/
 │   │   └── DeviceSettings.swift            // UserDefaults wrapper
-│   ├── Persistence/
+│   ├── Database/
 │   │   ├── AppDatabase.swift
 │   │   ├── Migrations/
 │   │   │   └── AppDatabase+Migrations.swift
