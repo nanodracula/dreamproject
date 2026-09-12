@@ -26,8 +26,8 @@ DreamProject/
 
 Each app directory contains its platform's build configuration, sources, and
 tests, making it self-contained where practical. The native iOS project lives
-at `apps/ios/DreamProject.xcodeproj`, beside the `DreamProject/` source folder and
-`DreamProjectTests/` test folder. Create the web directory as part of the
+at `apps/ios/DreamApp.xcodeproj`, beside the `DreamApp/` source folder and
+`DreamAppTests/` test folder. Create the web directory as part of the
 structure; implementation of the web app remains future work. Android is
 outside the current repository scope; do not create `apps/android/`.
 
@@ -105,24 +105,24 @@ introduced. Node.js, Java, Fastlane, and Docker are not initial prerequisites.
    Create root `mise.toml` with `ios:build`, `ios:test`, and `ios:run` tasks,
    calling `tools/run-ios.sh`, which selects `apps/ios/` as its working directory.
    Use `xcodebuild` with the
-   `DreamProject.xcodeproj` project and shared `DreamProject` scheme. Build for
+   `DreamApp.xcodeproj` project and shared `DreamApp` scheme. Build for
    iOS Simulator and let the test task accept an explicit simulator
    destination; document how to select one available on the current machine.
    Define the commands as part of setup and verify them after the project
    exists. Leave web task definitions for its implementation.
 
 3. **Create the native iOS project.**
-   Create a real `apps/ios/DreamProject.xcodeproj` with an `DreamProject`
+   Create a real `apps/ios/DreamApp.xcodeproj` with a `DreamApp`
    application target and shared scheme. Put Swift files and assets in
-   `apps/ios/DreamProject/`, using a synchronized folder assigned to the app
+   `apps/ios/DreamApp/`, using a synchronized folder assigned to the app
    target. Choose the deployment target and bundle identifier during app
    setup. Do not create an empty placeholder `.xcodeproj` directory.
 
 4. **Configure paths and tests.**
    Let Xcode's normal project root (`SRCROOT`) resolve to `apps/ios/`.
-   File-based build settings use paths such as `DreamProject/...`, relative to
-   that directory. Create an `DreamProjectTests` test target with a separate
-   synchronized folder at `apps/ios/DreamProjectTests/`, and include it in the
+   File-based build settings use paths such as `DreamApp/...`, relative to
+   that directory. Create a `DreamAppTests` test target with a separate
+   synchronized folder at `apps/ios/DreamAppTests/`, and include it in the
    shared scheme's test action. Keep test files out of the application target
    and include only intended app resources. Resolve repository-wide script
    paths explicitly from the iOS project directory when invoking them from
@@ -142,7 +142,7 @@ introduced. Node.js, Java, Fastlane, and Docker are not initial prerequisites.
    Write a root `README.md` with the repository layout, declared tools,
    prerequisites, bootstrap command, and implemented mise commands. Document
    `xed apps/ios` as the Xcode opening command from the repository root;
-   opening `apps/ios/DreamProject.xcodeproj` directly also works.
+   opening `apps/ios/DreamApp.xcodeproj` directly also works.
    Document the distinction between app configuration and repository helpers
    in `tools/`, with task definitions in `mise.toml`.
    A root npm package is not required.
@@ -150,7 +150,7 @@ introduced. Node.js, Java, Fastlane, and Docker are not initial prerequisites.
 7. **Verify the setup.**
    From the repository root, open `xed apps/ios` and verify the shared scheme
    is available through
-   `xcodebuild -list -project apps/ios/DreamProject.xcodeproj`.
+   `xcodebuild -list -project apps/ios/DreamApp.xcodeproj`.
    Build for an available iOS Simulator and run the test target through the
    mise tasks. Confirm project references use portable paths, test files have
    the correct target membership, and unrelated platform files are excluded

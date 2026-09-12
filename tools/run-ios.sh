@@ -6,8 +6,8 @@ cd "$repo_root/apps/ios"
 
 xcode() {
   xcodebuild \
-    -project DreamProject.xcodeproj \
-    -scheme DreamProject \
+    -project DreamApp.xcodeproj \
+    -scheme DreamApp \
     -configuration Debug \
     "$@"
 }
@@ -30,14 +30,14 @@ case "$action" in
     if [ -n "${IOS_SIMULATOR_ID:-}" ]; then
       destination="platform=iOS Simulator,id=$IOS_SIMULATOR_ID"
     fi
-    derived_data="$HOME/Library/Developer/Xcode/DerivedData/DreamProject-Run"
+    derived_data="$HOME/Library/Developer/Xcode/DerivedData/DreamApp-Run"
 
     xcrun simctl bootstatus "$simulator" -b
     open -a Simulator
     xcode -destination "$destination" \
       -derivedDataPath "$derived_data" build
 
-    app="$derived_data/Build/Products/Debug-iphonesimulator/DreamProject.app"
+    app="$derived_data/Build/Products/Debug-iphonesimulator/DreamApp.app"
     bundle_id=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
     xcrun simctl install "$simulator" "$app"
     xcrun simctl launch --terminate-running-process "$simulator" "$bundle_id"

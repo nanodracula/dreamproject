@@ -4,14 +4,16 @@ Repository setup is in progress. Steps 1–3 provide the directory structure,
 bootstrap tooling, and a minimal native SwiftUI iOS app. The test target will be
 added in step 4. See [the setup plan](docs/01-init.md).
 
+The iOS app is named `DreamApp`; the repository is named `DreamProject`.
+
 The app directories are `apps/ios/` and `apps/web/` (reserved for future work).
 Android is outside the current repository scope.
 
 The app targets iOS 26.0 and later on iPhone and iPad, using Swift 6 language mode.
 Its development bundle identifier is `com.example.DreamProject`. Choose an owned
 identifier and a signing team before physical-device distribution. The shared
-`DreamProject` scheme is included in the project. Swift sources and assets live
-in the synchronized `apps/ios/DreamProject/` folder assigned to the app target.
+`DreamApp` scheme is included in the project. Swift sources and assets live
+in the synchronized `apps/ios/DreamApp/` folder assigned to the app target.
 The app icon asset has empty slots ready for artwork.
 
 ## Prerequisites
@@ -71,8 +73,8 @@ from another working directory.
 
 Task definitions live in root `mise.toml` and call `tools/run-ios.sh` with a
 `build`, `test`, or `run` subcommand. The script resolves the repository root and
-runs `xcodebuild` from `apps/ios/`, using `DreamProject.xcodeproj` and the shared
-`DreamProject` scheme. Prerequisite checks happen during bootstrap; build and
+runs `xcodebuild` from `apps/ios/`, using `DreamApp.xcodeproj` and the shared
+`DreamApp` scheme. Prerequisite checks happen during bootstrap; build and
 test errors come directly from Xcode. You can also invoke the script directly,
 for example `bash tools/run-ios.sh run` from the repository root.
 
@@ -86,7 +88,7 @@ This boots iPhone 17 Pro if needed, opens Simulator, builds the app, installs it
 and launches it. Rerun the same command after editing to rebuild incrementally
 and relaunch. It exits after launch; it does not watch files or provide hot reload.
 Xcode caches this task's builds in
-`~/Library/Developer/Xcode/DerivedData/DreamProject-Run`, outside the repository.
+`~/Library/Developer/Xcode/DerivedData/DreamApp-Run`, outside the repository.
 The first run creates that cache; subsequent runs reuse it.
 
 To use a different simulator (or disambiguate duplicate device names), select its
@@ -103,7 +105,7 @@ Open the Simulator app:
 open -a Simulator
 ```
 
-This opens Simulator; it does not build or install DreamProject. To build and
+This opens Simulator; it does not build or install DreamApp. To build and
 run with Xcode's debugger, open the project in Xcode, select
 an iPhone simulator, and press Cmd+R:
 
@@ -120,7 +122,7 @@ mise run ios:build
 The equivalent command from the repository root, without mise, is:
 
 ```sh
-xcodebuild -project apps/ios/DreamProject.xcodeproj -scheme DreamProject \
+xcodebuild -project apps/ios/DreamApp.xcodeproj -scheme DreamApp \
   -configuration Debug -destination 'generic/platform=iOS Simulator' build
 ```
 

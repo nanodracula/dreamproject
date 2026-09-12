@@ -6,13 +6,13 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		D00000000000000000000001 /* DreamProject.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DreamProject.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D00000000000000000000001 /* DreamApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DreamApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		D00000000000000000000002 /* DreamProject */ = {
+		D00000000000000000000002 /* DreamApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = DreamProject;
+			path = DreamApp;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -30,23 +30,23 @@
 		D00000000000000000000004 = {
 			isa = PBXGroup;
 			children = (
-				D00000000000000000000002 /* DreamProject */,
+				D00000000000000000000002 /* DreamApp */,
 				D00000000000000000000005 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
 		D00000000000000000000005 /* Products */ = {
 			isa = PBXGroup;
-			children = (D00000000000000000000001 /* DreamProject.app */);
+			children = (D00000000000000000000001 /* DreamApp.app */);
 			name = Products;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		D00000000000000000000006 /* DreamProject */ = {
+		D00000000000000000000006 /* DreamApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = D0000000000000000000000A /* Build configuration list for PBXNativeTarget "DreamProject" */;
+			buildConfigurationList = D0000000000000000000000A /* Build configuration list for PBXNativeTarget "DreamApp" */;
 			buildPhases = (
 				D00000000000000000000007 /* Sources */,
 				D00000000000000000000003 /* Frameworks */,
@@ -54,11 +54,11 @@
 			);
 			buildRules = ();
 			dependencies = ();
-			fileSystemSynchronizedGroups = (D00000000000000000000002 /* DreamProject */);
-			name = DreamProject;
+			fileSystemSynchronizedGroups = (D00000000000000000000002 /* DreamApp */);
+			name = DreamApp;
 			packageProductDependencies = ();
-			productName = DreamProject;
-			productReference = D00000000000000000000001 /* DreamProject.app */;
+			productName = DreamApp;
+			productReference = D00000000000000000000001 /* DreamApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -74,7 +74,7 @@
 					D00000000000000000000006 = {CreatedOnToolsVersion = 26.6; };
 				};
 			};
-			buildConfigurationList = D0000000000000000000000B /* Build configuration list for PBXProject "DreamProject" */;
+			buildConfigurationList = D0000000000000000000000B /* Build configuration list for PBXProject "DreamApp" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (en, Base);
@@ -84,7 +84,7 @@
 			productRefGroup = D00000000000000000000005 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
-			targets = (D00000000000000000000006 /* DreamProject */);
+			targets = (D00000000000000000000006 /* DreamApp */);
 		};
 /* End PBXProject section */
 
@@ -208,13 +208,13 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		D0000000000000000000000A /* Build configuration list for PBXNativeTarget "DreamProject" */ = {
+		D0000000000000000000000A /* Build configuration list for PBXNativeTarget "DreamApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (D0000000000000000000000E /* Debug */, D0000000000000000000000F /* Release */);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		D0000000000000000000000B /* Build configuration list for PBXProject "DreamProject" */ = {
+		D0000000000000000000000B /* Build configuration list for PBXProject "DreamApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (D0000000000000000000000C /* Debug */, D0000000000000000000000D /* Release */);
 			defaultConfigurationIsVisible = 0;
