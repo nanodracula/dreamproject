@@ -15,7 +15,8 @@ Rules for `apps/ios/DreamApp/`. Folders exist only when they have content.
 - `Core/Contracts/` holds only shared protocols for process or hardware boundaries. Repositories over SQLite have no protocol.
 - `Infrastructure/`: GRDB record extensions, migrations, shared repositories, Supabase, sync, media cache, SDK wrappers (audio, speech, keychain, notifications).
 - `SharedUI/`: reusable domain views. Depend on Core, receive services by injection.
-- `DesignSystem/`: generic components and visual tokens. Per-feature theme files do not exist.
+- `DesignSystem/`: generic components and visual tokens.
+- A feature may keep one theme file of its own, holding the colors and visual constants only that feature draws. Put shared tokens in `DesignSystem/` and keep it to a single file per feature.
 - Tests live in `apps/ios/DreamAppTests/`, mirroring `Features/`, `Core/`, `Infrastructure/`.
 
 Dependency direction: `App` → `Features` → `Infrastructure` / `SharedUI` → `Core`.
