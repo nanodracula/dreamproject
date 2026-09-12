@@ -2,6 +2,11 @@
 
 Rules for `apps/ios/DreamApp/`. Folders exist only when they have content.
 
+## Files
+
+- One file per domain concept, not per type. Sub-types and enums live with the type that owns them (`SentenceBreakdown` in `Sentence.swift`, `KnowledgeLevel` in `UserSettings.swift`).
+- Files are never split by size. Long files are fine. Split only when a file holds two concepts that change for different reasons.
+
 ## Layers
 
 - `App/`: entry point, `AppDependencies` (composition root), `RootView`, navigation. Only place that wires features together.
@@ -26,7 +31,8 @@ Shared layers never depend on features. Features never depend on each other.
 ## Models and GRDB (decision: option B)
 
 - Core models are plain `Codable` structs: no `import GRDB`, no `CodingKeys` for column names, no `Columns`.
-- GRDB conformance lives in `Infrastructure/Persistence/Records/<Model>+Record.swift`: `FetchableRecord`, `PersistableRecord`, `databaseTableName`, snake_case column strategies, `Columns`, and reusable request builders.
+- GRDB conformance lives in `Infrastructure/Persistence/Records/<Domain>Records.swift` (`ContentRecords`, `SettingsRecords`): `FetchableRecord`, `PersistableRecord`, `databaseTableName`, snake_case column strategies, `Columns`, reusable request builders, and `DatabaseValueConvertible` for the domain's enums.
+- Extensions in Infrastructure are `nonisolated`. The project defaults to main-actor isolation, and GRDB conformances must not be actor-isolated.
 - No separate record types or mappers.
 - Language codes are strings in the database. `LearningLanguage` in Core is a config value listing supported languages, never a column type.
 
@@ -115,11 +121,12 @@ apps/ios/DreamApp/
 │
 ├── Core/
 │   ├── Models/
-│   │   ├── Word.swift
-│   │   ├── Sentence.swift
+│   │   ├── Word.swift                      // + PartOfSpeech, FrequencyRank
+│   │   ├── Sentence.swift                  // + SentenceType, SentenceBreakdown
+│   │   ├── ContentMedia.swift              // + MediaOrigin, AudioPace
+│   │   ├── UserSettings.swift              // + UserLearningLanguageSettings and its enums
 │   │   ├── Deck.swift
 │   │   ├── ReviewProgress.swift
-│   │   ├── UserSettings.swift
 │   │   └── LearningLanguage.swift          // supported languages config, not a column type
 │   ├── Contracts/
 │   │   ├── AudioPlaying.swift
@@ -143,12 +150,15 @@ apps/ios/DreamApp/
 │       └── Motion.swift
 │
 ├── Infrastructure/
+│   ├── Preferences/
+│   │   └── DeviceSettings.swift            // UserDefaults wrapper
 │   ├── Persistence/
 │   │   ├── AppDatabase.swift
 │   │   ├── Migrations/
+│   │   │   └── AppDatabase+Migrations.swift
 │   │   └── Records/
-│   │       ├── Word+Record.swift
-│   │       └── Sentence+Record.swift
+│   │       ├── ContentRecords.swift
+│   │       └── SettingsRecords.swift
 │   ├── Repositories/
 │   │   ├── WordRepository.swift
 │   │   ├── SentenceRepository.swift
