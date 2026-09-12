@@ -10,18 +10,21 @@ changes are outside this plan.
 ## 1. Client configuration
 
 The iOS app needs `SUPABASE_URL` and the anon key. The anon key is public by
-design — row-level security is what protects the data, and the existing
-policies are correct: `select` on `status = 'published'` for `anon` and
+design — row-level security protects database access, with the existing
+policies allowing `select` on `status = 'published'` for `anon` and
 `authenticated`, all writes to `service_role`, and storage insert/select/delete
 gated on `(storage.foldername(name))[1] = auth.uid()`. It ships inside the IPA
 regardless. The goal is to keep it out of scattered Swift source, not to hide it.
+The `ugc-*` buckets are intentionally public: anyone with an asset URL can
+download it. The ownership policies restrict uploads, listing, and deletion;
+they do not make public downloads private.
 
 The Xcode equivalent of `EXPO_PUBLIC_*` is an xcconfig feeding Info.plist:
 
-```sh
-# apps/ios/Config/Supabase.xcconfig            (gitignored)
-# apps/ios/Config/Supabase.example.xcconfig    (committed)
-# xcconfig treats // as a comment, so break the scheme separator:
+```xcconfig
+// apps/ios/Config/Supabase.xcconfig (committed)
+// Illustrative values; use the actual public URL and anon key when implementing.
+// xcconfig treats // as a comment, so break the scheme separator:
 SUPABASE_URL = https:$()//supabase.example.com
 SUPABASE_ANON_KEY = your-anon-key
 ```
@@ -37,7 +40,7 @@ nonisolated enum AppConfiguration {
     private static func string(for key: String) -> String {
         guard let value = Bundle.main.object(forInfoDictionaryKey: key) as? String,
               !value.isEmpty
-        else { fatalError("Missing \(key). Copy apps/ios/Config/Supabase.example.xcconfig to Supabase.xcconfig.") }
+        else { fatalError("Missing \(key). Check Config/Supabase.xcconfig and Info.plist build settings.") }
         return value
     }
 
@@ -53,19 +56,44 @@ nonisolated enum AppConfiguration {
 read; it stays in the Dokploy environment. The deployment scripts do not need
 it in `server/.env.local`.
 
-Wire the local xcconfig into the app's Debug and Release build configurations
+Commit `apps/ios/Config/Supabase.xcconfig` with the actual public URL and anon
+key. No ignored local config, example copy, or manual setup step is needed.
+Wire the xcconfig into the app's Debug and Release build configurations
 and add `SUPABASE_URL` and `SUPABASE_ANON_KEY` substitutions to the app's
-Info.plist configuration. Add an exact ignore rule for the local
-`apps/ios/Config/Supabase.xcconfig`; `.env` ignore rules do not cover it. Commit
-only `Supabase.example.xcconfig` and document copying it before building.
+Info.plist configuration. Only public client configuration belongs in this
+file; server credentials remain in the deployment environment.
 
 ## 2. Client and anonymous session
 
-Add `supabase-community/supabase-swift` through SPM beside GRDB. Put the client
-and session handling in `Infrastructure/Supabase/`, wired by `AppDependencies`.
-Mirror the old `ensureSession()` behavior: reuse a persisted session when
-available and sign in anonymously when a session is needed and none exists.
-Keep networking out of views.
+Add [`supabase/supabase-swift`](https://github.com/supabase/supabase-swift)
+through SPM beside GRDB. Own one shared client in `AppDependencies`, with the
+client setup and small session wrapper in `Infrastructure/Supabase/`.
+Initialize the session asynchronously at app startup: reuse the persisted
+session, or sign in anonymously if no session exists. Session creation does
+not need to be deferred until the first upload. Local GRDB screens must remain
+usable while authentication is pending or the device is offline.
+
+Supabase anonymous sign-in already creates a real user with a UUID and
+`is_anonymous = true`. Use that user ID for upload ownership; do not build a
+separate temporary-account system, generate fake login credentials, or invent
+an additional user ID. The UUID remains stable across session refreshes.
+Losing the session credentials leaves no independent account-recovery method.
+A future account feature can link a login identity to the existing anonymous
+user; login UI and merging with an existing account are outside this plan.
+
+Keep the wrapper limited to session coordination:
+
+- Let the SDK handle Keychain persistence and token refresh. Retrieve a valid
+  session through `auth.session` rather than maintaining a separate token store
+  or refresh timer.
+- Concurrent callers share one in-progress session initialization task.
+  Clear that task when it finishes; do not cache a permanent "ready" result.
+- Create an anonymous user only when the SDK reports that no session exists.
+  Propagate connectivity and refresh failures rather than treating every error
+  as a reason to create a new identity. A later attempt can retry.
+- Keep networking out of views and SDK details inside the data/infrastructure
+  layer. No generic API manager or additional pass-through service layers are
+  needed.
 
 ## 3. Function payloads
 
@@ -88,9 +116,13 @@ server schema evolution separate from this adapter.
 
 ## 5. Verification
 
-- Build with the local xcconfig and confirm the public configuration resolves.
+- Build from a fresh checkout with the committed xcconfig and confirm the
+  public configuration resolves without copying a local file.
 - Confirm an existing session is reused and a fresh installation can obtain an
   anonymous session.
+- Confirm concurrent startup/session requests share initialization, and an
+  offline or failed refresh does not trigger a new anonymous signup or block
+  local GRDB screens.
 - Invoke the functions with representative payloads and decode their responses.
 - Upload a representative media file under the current user's prefix.
 - Confirm imported content follows plan 03's mapping and validation rules.

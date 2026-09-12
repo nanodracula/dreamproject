@@ -40,10 +40,10 @@ this build setting in place, a root-view modifier is unnecessary — do not add 
 The status bar needs no separate setting: it follows the interface style, which
 matches the Expo app's explicit `StatusBar style="light"`.
 
-### Portrait only
+### iPhone only, portrait only
 
 ```
-INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
+TARGETED_DEVICE_FAMILY = 1;
 INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 ```
 
@@ -54,8 +54,10 @@ Every layout recorded in `docs/design.md` assumes portrait: the 380pt feed hero,
 the floating action rail, the tab bar inset 32 from each edge, and the
 full-height paged feed.
 
-Both idioms are now portrait. Revisit the iPad line if the iPad build is ever
-meant to rotate; the iPhone line should stay as it is.
+As of September 13, 2026, native iPad support is out of scope. The app and test
+targets use the iPhone device family in both Debug and Release, and the unused
+iPad orientation setting is removed. Revisit device support and adaptive layouts
+if native iPad support is added later.
 
 ### Launch screen background
 
