@@ -3,8 +3,8 @@
 Status: planned, not implemented, September 12, 2026.
 Source: `dreamproject-old` `shared/config/languages.ts` and
 `shared/config/writing-display-mode.ts` at `effe870`.
-Target: `apps/ios/DreamApp/Core/Models/LearningLanguage.swift`, with one
-change inside `server/supabase/functions/`.
+Target: `apps/ios/DreamApp/Core/Models/LearningLanguage.swift`.
+Related server changes are owned by the migration in plan 04 (§2).
 
 Port the supported-language configuration to Swift and give it a single
 owner. Today one file is imported by both the app and an edge function; after
@@ -38,7 +38,7 @@ languages, and the writing-layer rules. It all changes for the same reason —
 a language is added — so it is not split.
 
 `Core/` because this is Foundation-only data. Not `Config/`: that folder is
-reserved by `04-supabase-migration.md` for build and environment values read
+reserved by [plan 07](07-supabase-ios-integration.md) for build and environment values read
 from an xcconfig, which change per configuration. This table is identical in
 every build and carries domain rules (§3). `architecture.md` already reserves
 the path and calls it "supported languages config, not a column type" — rows
@@ -263,16 +263,21 @@ renders learning content.
 
 ## 6. Server changes
 
-Two edits inside `server/supabase/functions/`, after which nothing under
-`functions/` imports the language config:
+These changes happen during [plan 04 §2](04-supabase-migration.md#2-keep-only-backend-dependencies).
+They remove the server's language-config dependency before the Swift work;
+do not copy `shared/config/` into the functions or repeat these edits later.
 
-1. `generate-text/workflows/card-title.ts`: take the language display name
-   from the request instead of `getLearningLang(code).name`, and key
-   `languageNotes` on a plain `string`. An unknown code yields no notes, which
-   is the correct behaviour.
-2. `_shared/contracts/text-generation.ts` (after the fold described in
-   `04-supabase-migration.md` §2): replace `z.enum(learningLangCodes)` with a
-   literal list declared in that file.
+1. `generate-text/workflows/card-title.ts`: use the existing request's
+   `nativeWritingSystem` as the language/writing-system description instead
+   of `getLearningLang(code).name`. It already includes the language name
+   (§1); do not parse it or add a required request field. Keep language-specific
+   prompt guidance keyed by code, with `languageNotes` keyed on plain strings.
+2. Colocate card-title input/output schemas, tones, and inferred types in that
+   workflow. Replace the language-config import with the explicit supported
+   code list beside the input schema: `ja`, `zh-Hant`, `ko`, `pl`, `uk`.
+   Keep HTTP envelope schemas in `generate-text/index.ts`, with no workflow
+   importing that entrypoint. No separate text-generation contracts file is
+   needed.
 
 The supported-code list is then written in two places, Swift and the request
 contract. That duplication is accepted and has one rule: **adding a language
@@ -280,27 +285,28 @@ edits both.** The alternative — accepting any string and letting the client be
 the sole authority — removes the duplication but stops rejecting nonsense
 codes at the edge; keep the explicit list.
 
-This removes the last cross-language consumer of `shared/`, which is what
-`04-supabase-migration.md` §2 needs in order to fold `shared/` into
-`functions/_shared/`.
+Supported codes without specific prompt guidance simply receive no extra
+notes. Unsupported codes remain rejected by the request schema. The Swift
+language catalog and server prompt guidance have separate owners; fonts,
+emoji, writing-display helpers, and on-device speech settings stay client-side.
 
 ## 7. The remaining old configuration files
 
 | Old file | Disposition |
 | --- | --- |
-| `shared/config/languages.ts` | Ported by this plan. |
-| `shared/config/writing-display-mode.ts` | Ported by this plan, §3. |
-| `shared/contracts/database.ts` | Already ported: Core models and the enum contracts in `03-content-storage.md`. |
-| `shared/contracts/user-settings.ts` | Enums already in `UserSettings.swift`; defaults already inline in `AppDatabase.createInitialRecordsIfNeeded`, one call site, leave them. The zod `.catch(default)` leniency gets no Swift equivalent — validate at the import boundary, per plan 03. |
-| `shared/contracts/text-generation.ts` | Stays server-side; moves to `functions/_shared/`. Its client half becomes payload structs in `Features/AddCard/Data/CardTitleGeneration.swift` when Add card lands. |
+| `shared/config/languages.ts` | Port client data by this plan; remove the server dependency during plan 04. Do not copy the TypeScript table. |
+| `shared/config/writing-display-mode.ts` | Port client rules by this plan, §3. Do not copy into the backend. |
+| `shared/contracts/database.ts` | Swift models and enum contracts already ported per plan 03. Plan 04 retains only backend-used contracts in `_shared/contracts/database.ts`. |
+| `shared/contracts/user-settings.ts` | Do not copy into the backend. Enums already in `UserSettings.swift`; defaults already inline in `AppDatabase.createInitialRecordsIfNeeded`, one call site, leave them. The zod `.catch(default)` leniency gets no Swift equivalent — validate at the import boundary, per plan 03. |
+| `shared/contracts/text-generation.ts` | Colocate backend schemas in `generate-text/index.ts` and its card-title workflow per §6. Client payload structs live in `Features/AddCard/Data/CardTitleGeneration.swift` when Add card lands. |
 | `src/i18n/config.ts`, `src/i18n/locales/**`, `src/i18n/plural.ts` | Dies. The interface language is the system's on iOS: the supported list becomes the project's localizations, strings move to `Resources/Localizable.xcstrings`, plurals become xcstrings plural variations. The `en` and `uk` strings themselves are worth carrying over. |
 | `src/theme/**` | Already recorded verbatim in `docs/design.md`; becomes `DesignSystem/Theme/`. |
 | `app.json` | Dies. The parts that mattered are Xcode build settings — see `docs/ios-configuration.md`. |
-| `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY` | `04-supabase-migration.md` §3: `Config/AppConfiguration.swift` plus an xcconfig pair. |
+| `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY` | [Plan 07](07-supabase-ios-integration.md): `Config/AppConfiguration.swift` plus an xcconfig pair. |
 | `drizzle.config.ts` | Dies; `DatabaseMigrator` replaces it. |
 | `babel.config.js`, `metro.config.js`, `eslint.config.js`, `tsconfig.json`, `package.json` | Die with the React Native app. |
 | `server/supabase/config.toml` | Moves as is; it configures the Supabase CLI, not the app. |
-| `scripts/supabase-*.sh` | Move to `tools/supabase/` per `04-supabase-migration.md` §1. |
+| Deployment/tunnel `scripts/supabase-*.sh` | Move the three scripts to `tools/supabase/` per plan 04. Backup tooling is deferred. |
 
 ## 8. Verification
 
@@ -313,8 +319,9 @@ This removes the last cross-language consumer of `shared/`, which is what
   rather than a default language.
 - When speech is wired, confirm the rate conversion by ear against the old
   app; the failure is subtle and sounds like a voice that is merely fast.
-- After the server edit, confirm a card-title request still produces Japanese
-  notes, and that an unknown code returns a valid response without notes.
+- During plan 04's server verification, confirm card-title requests retain
+  Japanese guidance, supported codes without special guidance work without
+  extra notes, and unsupported codes are still rejected.
 - Do not add tests without approval. Do not commit or push without approval.
 
 ## 9. Out of scope
