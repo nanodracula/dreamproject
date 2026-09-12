@@ -177,7 +177,9 @@ apps/ios/DreamApp/
 │
 └── Resources/
     ├── Assets.xcassets
-    └── Localizable.xcstrings
+    └── Localization/
+        ├── Dictionary.xcstrings
+        └── Settings.xcstrings
 
 apps/ios/DreamAppTests/
 ├── Features/
