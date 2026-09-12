@@ -7,6 +7,7 @@
 
 /* Begin PBXBuildFile section */
 		D00000000000000000000012 /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = D00000000000000000000011 /* GRDB */; };
+		D00000000000000000000025 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = D00000000000000000000024 /* Supabase */; };
 		D0000000000000000000001F /* GRDB in Frameworks */ = {isa = PBXBuildFile; productRef = D0000000000000000000001E /* GRDB */; };
 /* End PBXBuildFile section */
 
@@ -28,7 +29,7 @@
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
 		D00000000000000000000020 /* Exceptions for DreamApp folder in DreamApp target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (Resources/Info.plist);
+			membershipExceptions = (Config/Info.plist);
 			target = D00000000000000000000006 /* DreamApp */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -53,6 +54,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D00000000000000000000012 /* GRDB in Frameworks */,
+				D00000000000000000000025 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -102,6 +104,7 @@
 			name = DreamApp;
 			packageProductDependencies = (
 				D00000000000000000000011 /* GRDB */,
+				D00000000000000000000024 /* Supabase */,
 			);
 			productName = DreamApp;
 			productReference = D00000000000000000000001 /* DreamApp.app */;
@@ -150,6 +153,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				D00000000000000000000010 /* XCRemoteSwiftPackageReference "GRDB.swift" */,
+				D00000000000000000000023 /* XCRemoteSwiftPackageReference "supabase-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = D00000000000000000000005 /* Products */;
@@ -250,7 +254,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = DreamApp/Resources/Info.plist;
+				INFOPLIST_FILE = DreamApp/Config/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
@@ -280,7 +284,7 @@
 				CURRENT_PROJECT_VERSION = 1;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = DreamApp/Resources/Info.plist;
+				INFOPLIST_FILE = DreamApp/Config/Info.plist;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
@@ -375,6 +379,14 @@
 				minimumVersion = 7.11.1;
 			};
 		};
+		D00000000000000000000023 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.55.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -387,6 +399,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = D00000000000000000000010 /* XCRemoteSwiftPackageReference "GRDB.swift" */;
 			productName = GRDB;
+		};
+		D00000000000000000000024 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = D00000000000000000000023 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

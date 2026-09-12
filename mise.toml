@@ -2,7 +2,7 @@
 
 [tools]
 deno = "2"
-"aqua:supabase/cli" = "2.65.2"
+"aqua:supabase/cli" = "2.117.0"
 
 # === 1. IOS
 

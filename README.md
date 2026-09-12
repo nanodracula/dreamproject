@@ -12,7 +12,7 @@ Architecture: `docs/architecture.md`. Storage plans: `docs/plans/`.
 Requires macOS, full Xcode, an iOS Simulator runtime, Git, Bash, and curl.
 Verified September 12, 2026: Xcode 26.6 (17F113), iOS Simulator 26.5 (23F77),
 mise 2026.9.5. iOS uses Xcode's bundled toolchain. mise manages the server
-toolchain: Deno 2 and the Supabase CLI 2.65.2 (`[tools]` in `mise.toml`).
+toolchain: Deno 2 and the Supabase CLI 2.117.0 (`[tools]` in `mise.toml`).
 Setup checks passed: bootstrap installation/reuse, Simulator build/launch,
 project paths, app inputs, and Git ignore rules.
 
@@ -27,7 +27,9 @@ Bootstrap checks prerequisites, installs mise if missing, trusts `mise.toml`,
 and runs `mise install`. Safe to rerun; no shell activation required.
 
 Deploying to the server additionally needs SSH access to the VPS and a
-`server/.env.local` created from `server/.env.example`.
+`server/.env.local` created from `server/.env.example`. Database deployment
+requires `SUPABASE_DB_USER=postgres.<POOLER_TENANT_ID>` for the Supavisor
+tenant configured in Dokploy; see `server/README.md` for the connection setup.
 
 ## Commands
 

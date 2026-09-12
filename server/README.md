@@ -32,15 +32,18 @@ Helper scripts live in `tools/supabase/` and are exposed as mise tasks.
 ## Setup
 
 1. `bash tools/bootstrap.sh` installs mise, Deno 2, and the Supabase CLI
-   (`2.65.2`, pinned in `mise.toml`).
+   (`2.117.0`, pinned in `mise.toml` to support the current `config.toml`).
 2. SSH access to the VPS as configured in `~/.ssh/config`; the host alias goes
    into `SUPABASE_SSH_HOST`.
 3. `cp server/.env.example server/.env.local` and fill in every value. The
    file is gitignored by the root `.gitignore` (`.env.*`). Quote values that
    contain spaces or shell characters; the file is sourced by the scripts.
+   Set `SUPABASE_DB_USER` to `postgres.<POOLER_TENANT_ID>`, using the tenant
+   ID configured for Supavisor in the Dokploy compose environment.
 
 | Variable | Used by | Meaning |
 | --- | --- | --- |
+| `SUPABASE_DB_USER` | `db:deploy` | Supavisor login, `postgres.<POOLER_TENANT_ID>`; plain `postgres` only for a direct Postgres connection |
 | `POSTGRES_PASSWORD` | `db:deploy` | Password of the `postgres` role on the remote database |
 | `SUPABASE_SSH_HOST` | all | SSH alias or `user@host` of the VPS |
 | `SUPABASE_REMOTE_CONTAINER` | `db:tunnel`, `db:deploy` | Supavisor container name; the tunnel targets its port 5432 |
@@ -74,11 +77,16 @@ bash tools/supabase/tunnel.sh status|stop
 mise run db:deploy                          # tunnel + supabase db push --db-url …
 ```
 
-`db:deploy` builds the connection URL with Deno so the password is
-percent-encoded, opens the tunnel, and runs
+`db:deploy` builds the connection URL with Deno so the username and password
+are percent-encoded, opens the tunnel, and runs
 `supabase --workdir server db push --db-url "$db_url"`. Every Supabase CLI
 command uses `--workdir server` (or the absolute path in scripts) so it reads
 `server/supabase/config.toml` and these migrations.
+
+The URL uses `SUPABASE_DB_USER` and `sslmode=disable`: this Supavisor listener
+requires a tenant-qualified username and does not provide PostgreSQL TLS.
+Traffic between the operator's machine and the VPS remains encrypted by the
+SSH tunnel, which listens only on `127.0.0.1` locally.
 
 Rules:
 

@@ -44,9 +44,8 @@ languages, and the writing-layer rules. It all changes for the same reason —
 a language is added — so it is not split.
 
 `Core/` because this is Foundation-only data. Not `Config/`: that folder is
-reserved by [plan 07](07-supabase-ios-integration.md) for build and environment values read
-from an xcconfig, which change per configuration. This table is identical in
-every build and carries domain rules (§3). `architecture.md` already reserves
+reserved by [plan 07](07-supabase-ios-integration.md) for public client values such as
+the Supabase URL and anon key. This table carries domain rules (§3). `architecture.md` already reserves
 the path and calls it "supported languages config, not a column type" — rows
 still store `lang` as a plain string.
 
@@ -332,7 +331,7 @@ emoji, writing-display helpers, and on-device speech settings stay client-side.
 | `src/i18n/config.ts`, `src/i18n/locales/**`, `src/i18n/plural.ts` | Dies. The interface language is the system's on iOS: the supported list becomes the project's localizations, strings move to feature catalogs in `Resources/Localization/` per plan 08, plurals become xcstrings plural variations. The `en` and `uk` strings themselves are worth carrying over. |
 | `src/theme/**` | Already recorded verbatim in `docs/design.md`; becomes `DesignSystem/Theme/`. |
 | `app.json` | Dies. The parts that mattered are Xcode build settings — see `docs/ios-configuration.md`. |
-| `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY` | [Plan 07](07-supabase-ios-integration.md): `Config/AppConfiguration.swift` plus an xcconfig pair. |
+| `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_ANON_KEY` | [Plan 07](07-supabase-ios-integration.md): `Config/AppConfiguration.swift` as two constants. |
 | `drizzle.config.ts` | Dies; `DatabaseMigrator` replaces it. |
 | `babel.config.js`, `metro.config.js`, `eslint.config.js`, `tsconfig.json`, `package.json` | Die with the React Native app. |
 | `server/supabase/config.toml` | Moves as is; it configures the Supabase CLI, not the app. |

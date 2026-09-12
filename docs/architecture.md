@@ -165,8 +165,10 @@ apps/ios/DreamApp/
 │   │   ├── SentenceRepository.swift
 │   │   └── SettingsRepository.swift
 │   ├── Supabase/
+│   │   └── SupabaseSession.swift           // client factory + anonymous session
 │   ├── Sync/
 │   ├── Media/
+│   │   └── MediaUploader.swift             // ugc-* uploads under {uid}/
 │   ├── Audio/
 │   ├── Speech/
 │   ├── Keychain/                            (planned)
