@@ -1,6 +1,9 @@
 # Local words and sentences storage plan
 
-Status: ready for implementation; not implemented.
+Status: schema and models implemented and verified on September 12, 2026
+(GRDB 7.11.1, Xcode 26.6). Import, sync, and downloads are not implemented.
+Code: `apps/ios/DreamApp/Database/AppDatabase.swift` (`v2_content` migration),
+`apps/ios/DreamApp/Content/`.
 
 Add local `words` and `sentences` tables with plain translation text and
 embedded media metadata. Curated Supabase content keeps its own structure;

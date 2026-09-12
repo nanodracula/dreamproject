@@ -20,7 +20,7 @@ struct AppDatabaseTests {
             let superseded = try AppDatabase.migrator.hasBeenSuperseded(db)
             #expect(hasSettings)
             #expect(hasEnrollments)
-            #expect(applied == ["v1_settings"])
+            #expect(applied == ["v1_settings", "v2_content"])
             #expect(!superseded)
         }
     }
