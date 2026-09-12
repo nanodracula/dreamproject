@@ -33,7 +33,9 @@ or inventing replacements.
 ## 2. Choose stable catalog keys
 
 Use flat camelCase keys with feature prefixes. Remove the generic `common`
-namespace and retain the `settings` prefix for settings messages.
+namespace and retain the `settings` prefix for settings messages. Omit
+redundant nesting segments when the meaning remains clear; for example,
+use `settingsKnowledgeLevelBeginner` for the beginner option.
 
 | Existing namespace and key | Catalog key |
 | --- | --- |
@@ -43,7 +45,7 @@ namespace and retain the `settings` prefix for settings messages.
 | `common:dictionary.selection.count` | `dictionarySelectionCount` |
 | `common:dictionary.counts.words.*` | `dictionaryCountsWords` |
 | `settings:title` | `settingsTitle` |
-| `settings:learning.knowledgeLevel.options.beginner` | `settingsLearningKnowledgeLevelBeginner` |
+| `settings:learning.knowledgeLevel.options.beginner` | `settingsKnowledgeLevelBeginner` |
 
 Keep an explicit source-to-catalog mapping during conversion so completeness
 can be checked after plural keys are collapsed. Check for collisions,
@@ -161,19 +163,25 @@ Perform a one-time source/catalog comparison without adding tests:
   collisions.
 - Build the app to verify catalog compilation and generated Swift symbols.
 
-Visual verification should cover English and Ukrainian, unsupported-language
-fallback to English, interpolation, and counts such as `1`, `2`, `5`, `11`,
-and `21`. Check a larger count such as `12345` for localized number formatting.
-Inspect the existing greeting immediately; exercise feature messages through
-previews or their screens as those become available. Ask before opening the
-iPhone simulator. Do not add tests unless the user requests them.
+During this migration, resolve representative catalog messages in English
+and Ukrainian and verify unsupported-language fallback to English,
+interpolation, and plural output for counts such as `0`, `1`, `2`, `5`, `11`,
+`21`, and `22`. Check a larger count such as `12345` for localized number
+formatting. Use a one-time verification script or temporary preview; do not
+wait for dictionary and settings screens to exist to check message output.
+
+Inspect the existing greeting immediately. Defer wrapping, truncation, and
+placement checks for future feature screens until those screens are built.
+Ask before opening the iPhone simulator. Do not add tests unless the user
+requests them.
 
 ## 8. Completion criteria
 
 The immediate migration is complete when all existing translations are
 accounted for in one catalog, native localization is configured, generated
-symbols compile, and the existing greeting uses them. Report any unresolved
-translation discrepancies or deferred visual checks.
+symbols compile, representative translated message output is verified, and
+the existing greeting uses them. Report any unresolved translation
+discrepancies or deferred screen layout checks.
 
 Connecting dictionary and settings translations to their Swift screens
 belongs to those screen migrations. No old-project edits, commits, or pushes
