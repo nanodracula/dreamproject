@@ -13,52 +13,14 @@ nonisolated struct Sentence: Codable, Equatable, Sendable {
     var difficultyLevel: Int?
     /// The translation for the user's selected native language.
     var translations: String
-    var breakdown: SentenceBreakdown
-    var tags: [String]
-    var photo: ContentPhoto
-    var audio: ContentAudio
+    var breakdown = SentenceBreakdown()
+    var tags: [String] = []
+    var photo = ContentPhoto()
+    var audio = ContentAudio()
     var favoritedAt: Date?
     var createdAt: Date
     var updatedAt: Date
     var deletedAt: Date?
-
-    init(
-        id: UUID,
-        lang: String,
-        title: String,
-        sentenceType: SentenceType,
-        source: String? = nil,
-        writingTransliterated: String,
-        writingPhonetic: String? = nil,
-        difficultyLevel: Int? = nil,
-        translations: String,
-        breakdown: SentenceBreakdown = SentenceBreakdown(),
-        tags: [String] = [],
-        photo: ContentPhoto = ContentPhoto(),
-        audio: ContentAudio = ContentAudio(),
-        favoritedAt: Date? = nil,
-        createdAt: Date,
-        updatedAt: Date,
-        deletedAt: Date? = nil
-    ) {
-        self.id = id
-        self.lang = lang
-        self.title = title
-        self.sentenceType = sentenceType
-        self.source = source
-        self.writingTransliterated = writingTransliterated
-        self.writingPhonetic = writingPhonetic
-        self.difficultyLevel = difficultyLevel
-        self.translations = translations
-        self.breakdown = breakdown
-        self.tags = tags
-        self.photo = photo
-        self.audio = audio
-        self.favoritedAt = favoritedAt
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-        self.deletedAt = deletedAt
-    }
 }
 
 /// The kind of a sentence row.
@@ -73,13 +35,8 @@ nonisolated enum SentenceType: String, Codable, Sendable, CaseIterable {
 nonisolated struct SentenceBreakdown: Codable, Equatable, Sendable {
     static let currentSchemaVersion = 1
 
-    var schemaVersion: Int
-    var items: [SentenceBreakdownItem]
-
-    init(schemaVersion: Int = SentenceBreakdown.currentSchemaVersion, items: [SentenceBreakdownItem] = []) {
-        self.schemaVersion = schemaVersion
-        self.items = items
-    }
+    var schemaVersion = SentenceBreakdown.currentSchemaVersion
+    var items: [SentenceBreakdownItem] = []
 }
 
 /// One chunk of a sentence breakdown, discriminated by the flat `type` key.
@@ -130,31 +87,9 @@ nonisolated struct SentenceBreakdownWord: Codable, Equatable, Sendable {
     var frequencyRank: FrequencyRank?
     var details: String
     var translationInContext: String
-    var otherTranslations: [String]
+    var otherTranslations: [String] = []
     var writingPhonetic: String?
     var writingTransliterated: String
-
-    init(
-        partOfSpeech: PartOfSpeech,
-        originalChunk: String,
-        baseForm: String,
-        frequencyRank: FrequencyRank? = nil,
-        details: String,
-        translationInContext: String,
-        otherTranslations: [String] = [],
-        writingPhonetic: String? = nil,
-        writingTransliterated: String
-    ) {
-        self.partOfSpeech = partOfSpeech
-        self.originalChunk = originalChunk
-        self.baseForm = baseForm
-        self.frequencyRank = frequencyRank
-        self.details = details
-        self.translationInContext = translationInContext
-        self.otherTranslations = otherTranslations
-        self.writingPhonetic = writingPhonetic
-        self.writingTransliterated = writingTransliterated
-    }
 }
 
 /// A punctuation chunk of a sentence breakdown. Its part of speech is always

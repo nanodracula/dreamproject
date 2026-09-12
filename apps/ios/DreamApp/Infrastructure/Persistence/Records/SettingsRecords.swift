@@ -5,13 +5,13 @@ nonisolated extension UserSettings: FetchableRecord, PersistableRecord {
     static let databaseColumnDecodingStrategy: DatabaseColumnDecodingStrategy = .convertFromSnakeCase
     static let databaseColumnEncodingStrategy: DatabaseColumnEncodingStrategy = .convertToSnakeCase
 
-    enum Columns {
-        static let userId = Column("user_id")
-        static let nativeLanguage = Column("native_language")
-        static let activeLearningLanguage = Column("active_learning_language")
-        static let createdAt = Column("created_at")
-        static let updatedAt = Column("updated_at")
-        static let deletedAt = Column("deleted_at")
+    enum Columns: String, ColumnExpression {
+        case userId = "user_id"
+        case nativeLanguage = "native_language"
+        case activeLearningLanguage = "active_learning_language"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+        case deletedAt = "deleted_at"
     }
 }
 
@@ -20,15 +20,15 @@ nonisolated extension UserLearningLanguageSettings: FetchableRecord, Persistable
     static let databaseColumnDecodingStrategy: DatabaseColumnDecodingStrategy = .convertFromSnakeCase
     static let databaseColumnEncodingStrategy: DatabaseColumnEncodingStrategy = .convertToSnakeCase
 
-    enum Columns {
-        static let id = Column("id")
-        static let userId = Column("user_id")
-        static let languageCode = Column("language_code")
-        static let knowledgeLevel = Column("knowledge_level")
-        static let writingDisplayMode = Column("writing_display_mode")
-        static let createdAt = Column("created_at")
-        static let updatedAt = Column("updated_at")
-        static let deletedAt = Column("deleted_at")
+    enum Columns: String, ColumnExpression {
+        case id
+        case userId = "user_id"
+        case languageCode = "language_code"
+        case knowledgeLevel = "knowledge_level"
+        case writingDisplayMode = "writing_display_mode"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+        case deletedAt = "deleted_at"
     }
 }
 

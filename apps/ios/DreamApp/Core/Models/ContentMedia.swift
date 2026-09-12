@@ -27,39 +27,17 @@ nonisolated struct AudioAsset: Codable, Equatable, Sendable {
     var lang: String
     /// A stable voice identifier, not a display label.
     var voice: String?
-    /// Required when decoding stored JSON; new recordings default to `.normal`.
-    var pace: AudioPace
+    /// Default for new recordings; still required when decoding stored JSON.
+    var pace: AudioPace = .normal
     var durationMs: Int?
     var origin: MediaOrigin
     /// `"provider:model-id"`, or `nil` when not applicable or unknown.
     var aiModel: String?
-
-    init(
-        storagePath: String,
-        lang: String,
-        voice: String? = nil,
-        pace: AudioPace = .normal,
-        durationMs: Int? = nil,
-        origin: MediaOrigin,
-        aiModel: String? = nil
-    ) {
-        self.storagePath = storagePath
-        self.lang = lang
-        self.voice = voice
-        self.pace = pace
-        self.durationMs = durationMs
-        self.origin = origin
-        self.aiModel = aiModel
-    }
 }
 
 /// The `photo` column: the main image, if any.
 nonisolated struct ContentPhoto: Codable, Equatable, Sendable {
     var main: PhotoAsset?
-
-    init(main: PhotoAsset? = nil) {
-        self.main = main
-    }
 }
 
 /// The `audio` column: the original pronunciation and the recording of the
@@ -67,11 +45,6 @@ nonisolated struct ContentPhoto: Codable, Equatable, Sendable {
 nonisolated struct ContentAudio: Codable, Equatable, Sendable {
     var title: AudioAsset?
     var translation: AudioAsset?
-
-    init(title: AudioAsset? = nil, translation: AudioAsset? = nil) {
-        self.title = title
-        self.translation = translation
-    }
 }
 
 /// Where a media asset came from.

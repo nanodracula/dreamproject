@@ -15,57 +15,15 @@ nonisolated struct Word: Codable, Equatable, Sendable {
     var frequencyRank: FrequencyRank?
     /// The translation for the user's selected native language.
     var translations: String
-    var tags: [String]
+    var tags: [String] = []
     /// Ordered example sentence IDs. Not a SQL foreign key.
-    var sentenceIds: [UUID]
-    var photo: ContentPhoto
-    var audio: ContentAudio
+    var sentenceIds: [UUID] = []
+    var photo = ContentPhoto()
+    var audio = ContentAudio()
     var favoritedAt: Date?
     var createdAt: Date
     var updatedAt: Date
     var deletedAt: Date?
-
-    init(
-        id: UUID,
-        lang: String,
-        title: String,
-        definition: String,
-        baseForm: String? = nil,
-        partOfSpeech: PartOfSpeech,
-        writingTransliterated: String,
-        writingPhonetic: String? = nil,
-        difficultyLevel: Int? = nil,
-        frequencyRank: FrequencyRank? = nil,
-        translations: String,
-        tags: [String] = [],
-        sentenceIds: [UUID] = [],
-        photo: ContentPhoto = ContentPhoto(),
-        audio: ContentAudio = ContentAudio(),
-        favoritedAt: Date? = nil,
-        createdAt: Date,
-        updatedAt: Date,
-        deletedAt: Date? = nil
-    ) {
-        self.id = id
-        self.lang = lang
-        self.title = title
-        self.definition = definition
-        self.baseForm = baseForm
-        self.partOfSpeech = partOfSpeech
-        self.writingTransliterated = writingTransliterated
-        self.writingPhonetic = writingPhonetic
-        self.difficultyLevel = difficultyLevel
-        self.frequencyRank = frequencyRank
-        self.translations = translations
-        self.tags = tags
-        self.sentenceIds = sentenceIds
-        self.photo = photo
-        self.audio = audio
-        self.favoritedAt = favoritedAt
-        self.createdAt = createdAt
-        self.updatedAt = updatedAt
-        self.deletedAt = deletedAt
-    }
 }
 
 /// Universal part-of-speech tags shared by words and sentence breakdowns.
