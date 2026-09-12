@@ -1,0 +1,40 @@
+[
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000016",
+    "lang": "ko",
+    "title": "네",
+    "definition": "A polite affirmative response.",
+    "baseForm": "네",
+    "partOfSpeech": "INTJ",
+    "writingTransliterated": "ne",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "frequencyRank": null,
+    "translations": "Yes",
+    "tags": [],
+    "sentenceIds": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000017",
+    "lang": "ko",
+    "title": "아니요",
+    "definition": "A polite negative response.",
+    "baseForm": "아니요",
+    "partOfSpeech": "INTJ",
+    "writingTransliterated": "aniyo",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "frequencyRank": null,
+    "translations": "No",
+    "tags": [],
+    "sentenceIds": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  }
+]

@@ -1,6 +1,7 @@
 # Content seed plan
 
-Status: planned, not implemented, September 13, 2026.
+Status: bundled JSON implemented, September 13, 2026. The loader and Settings
+button remain deferred (§6–7).
 Source data: `dreamproject-old` `src/lib/database/seed.ts` at `917575a`.
 Target now: `apps/ios/DreamApp/Resources/Seed/`.
 Future target, with the Settings button:
@@ -178,6 +179,10 @@ them, by listing the `audio` bucket in Studio or over the tunnel from
 The other 61 sentences and all 44 words have no audio either way, and no seed
 row has a photo.
 
+Verified September 13, 2026: a read-only listing of `storage.objects` for the
+`audio` bucket and `seed/sentences/` prefix returned no objects. All bundled
+rows therefore use `"audio": {}`; no unverified paths were included.
+
 ## 5. Conversion
 
 A one-off, run from the old checkout. The JSON becomes the source of truth
@@ -293,6 +298,16 @@ This is an additive import action. The old app's destructive
 loader together when the Settings screen arrives.
 
 ## 8. Verification
+
+Completed September 13, 2026: the Debug build for the generic iOS Simulator
+destination passed. All four JSON files were copied to the bundle root
+without a project-file edit and match the source files byte for byte. A
+one-off Swift decode of the bundled files using the existing `Word`,
+`Sentence`, and media models read all 140 rows successfully. Conversion
+validation confirmed counts, IDs, enum values, timestamps, English
+translations, and same-language word-to-sentence references. No tests were
+added. No simulator was opened or app launched; launch/relaunch verification
+remains manual. Startup code is unchanged and contains no seed import.
 
 For the bundled files now:
 

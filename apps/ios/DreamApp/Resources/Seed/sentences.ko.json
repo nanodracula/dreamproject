@@ -1,0 +1,584 @@
+[
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000001",
+    "lang": "ko",
+    "title": "안녕하세요",
+    "sentenceType": "phrase",
+    "source": null,
+    "writingTransliterated": "Annyeonghaseyo",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Hello",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "ADJ",
+          "originalChunk": "안녕하세요",
+          "baseForm": "안녕하다",
+          "frequencyRank": null,
+          "details": "A polite greeting used when meeting someone.",
+          "translationInContext": "hello",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "annyeonghaseyo"
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000002",
+    "lang": "ko",
+    "title": "감사합니다",
+    "sentenceType": "phrase",
+    "source": null,
+    "writingTransliterated": "Gamsahamnida",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Thank you",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "VERB",
+          "originalChunk": "감사합니다",
+          "baseForm": "감사하다",
+          "frequencyRank": null,
+          "details": "A formal, polite expression of thanks.",
+          "translationInContext": "thank you",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "gamsahamnida"
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000003",
+    "lang": "ko",
+    "title": "죄송합니다",
+    "sentenceType": "phrase",
+    "source": null,
+    "writingTransliterated": "Joesonghamnida",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "I'm sorry",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "ADJ",
+          "originalChunk": "죄송합니다",
+          "baseForm": "죄송하다",
+          "frequencyRank": null,
+          "details": "A formal, polite apology.",
+          "translationInContext": "I'm sorry",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "joesonghamnida"
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000004",
+    "lang": "ko",
+    "title": "실례합니다",
+    "sentenceType": "phrase",
+    "source": null,
+    "writingTransliterated": "Sillyehamnida",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Excuse me",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "VERB",
+          "originalChunk": "실례합니다",
+          "baseForm": "실례하다",
+          "frequencyRank": null,
+          "details": "A polite way to approach someone or apologize for an interruption.",
+          "translationInContext": "excuse me",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "sillyehamnida"
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000005",
+    "lang": "ko",
+    "title": "저기요",
+    "sentenceType": "phrase",
+    "source": null,
+    "writingTransliterated": "Jeogiyo",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Excuse me",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "INTJ",
+          "originalChunk": "저기요",
+          "baseForm": "저기",
+          "frequencyRank": null,
+          "details": "Used to get someone's attention, such as a server in a restaurant.",
+          "translationInContext": "excuse me",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "jeogiyo"
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000006",
+    "lang": "ko",
+    "title": "괜찮아요",
+    "sentenceType": "sentence",
+    "source": null,
+    "writingTransliterated": "Gwaenchanayo",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "It's okay / No, thanks",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "ADJ",
+          "originalChunk": "괜찮아요",
+          "baseForm": "괜찮다",
+          "frequencyRank": null,
+          "details": "Can reassure someone or politely decline an offer, depending on context.",
+          "translationInContext": "it's okay",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "gwaenchanayo"
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000008",
+    "lang": "ko",
+    "title": "영어 하세요?",
+    "sentenceType": "question",
+    "source": null,
+    "writingTransliterated": "Yeongeo haseyo?",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Do you speak English?",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "NOUN",
+          "originalChunk": "영어",
+          "baseForm": "영어",
+          "frequencyRank": null,
+          "details": "The English language.",
+          "translationInContext": "English",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "yeongeo"
+        },
+        {
+          "type": "word",
+          "partOfSpeech": "VERB",
+          "originalChunk": "하세요",
+          "baseForm": "하다",
+          "frequencyRank": null,
+          "details": "A polite, respectful form of 하다; with a language, it asks whether someone speaks it.",
+          "translationInContext": "do you speak",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "haseyo"
+        },
+        {
+          "type": "punctuation",
+          "partOfSpeech": "PUNCT",
+          "originalChunk": "?",
+          "details": "A question mark indicating a direct question."
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000009",
+    "lang": "ko",
+    "title": "천천히 말해 주세요",
+    "sentenceType": "sentence",
+    "source": null,
+    "writingTransliterated": "Cheoncheonhi malhae juseyo",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Please speak slowly",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "ADV",
+          "originalChunk": "천천히",
+          "baseForm": "천천히",
+          "frequencyRank": null,
+          "details": "Asks for a slower pace.",
+          "translationInContext": "slowly",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "cheoncheonhi"
+        },
+        {
+          "type": "word",
+          "partOfSpeech": "VERB",
+          "originalChunk": "말해",
+          "baseForm": "말하다",
+          "frequencyRank": null,
+          "details": "A connective form of 말하다, to speak, followed by a polite request.",
+          "translationInContext": "speak",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "malhae"
+        },
+        {
+          "type": "word",
+          "partOfSpeech": "AUX",
+          "originalChunk": "주세요",
+          "baseForm": "주다",
+          "frequencyRank": null,
+          "details": "After a verb, asks someone politely to do that action for the speaker.",
+          "translationInContext": "please",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "juseyo"
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000010",
+    "lang": "ko",
+    "title": "이거 주세요",
+    "sentenceType": "sentence",
+    "source": null,
+    "writingTransliterated": "Igeo juseyo",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "This one, please",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "PRON",
+          "originalChunk": "이거",
+          "baseForm": "이거",
+          "frequencyRank": null,
+          "details": "A conversational form of 이것, used while pointing to the desired item.",
+          "translationInContext": "this one",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "igeo"
+        },
+        {
+          "type": "word",
+          "partOfSpeech": "VERB",
+          "originalChunk": "주세요",
+          "baseForm": "주다",
+          "frequencyRank": null,
+          "details": "A polite request for an item, useful when ordering or shopping.",
+          "translationInContext": "please give me",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "juseyo"
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000011",
+    "lang": "ko",
+    "title": "물 주세요",
+    "sentenceType": "sentence",
+    "source": null,
+    "writingTransliterated": "Mul juseyo",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Water, please",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "NOUN",
+          "originalChunk": "물",
+          "baseForm": "물",
+          "frequencyRank": null,
+          "details": "Drinking water in this request.",
+          "translationInContext": "water",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "mul"
+        },
+        {
+          "type": "word",
+          "partOfSpeech": "VERB",
+          "originalChunk": "주세요",
+          "baseForm": "주다",
+          "frequencyRank": null,
+          "details": "A polite request for something.",
+          "translationInContext": "please give me",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "juseyo"
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000012",
+    "lang": "ko",
+    "title": "카드 돼요?",
+    "sentenceType": "question",
+    "source": null,
+    "writingTransliterated": "Kadeu dwaeyo?",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Can I pay by card?",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "NOUN",
+          "originalChunk": "카드",
+          "baseForm": "카드",
+          "frequencyRank": null,
+          "details": "A payment card in this context.",
+          "translationInContext": "card",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "kadeu"
+        },
+        {
+          "type": "word",
+          "partOfSpeech": "VERB",
+          "originalChunk": "돼요",
+          "baseForm": "되다",
+          "frequencyRank": null,
+          "details": "A polite form of 되다; here it asks whether card payment is accepted.",
+          "translationInContext": "is it possible",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "dwaeyo"
+        },
+        {
+          "type": "punctuation",
+          "partOfSpeech": "PUNCT",
+          "originalChunk": "?",
+          "details": "A question mark indicating a direct question."
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000013",
+    "lang": "ko",
+    "title": "매워요?",
+    "sentenceType": "question",
+    "source": null,
+    "writingTransliterated": "Maewoyo?",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Is it spicy?",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "ADJ",
+          "originalChunk": "매워요",
+          "baseForm": "맵다",
+          "frequencyRank": null,
+          "details": "The polite form of 맵다, spicy, used here as a question about food.",
+          "translationInContext": "is it spicy",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "maewoyo"
+        },
+        {
+          "type": "punctuation",
+          "partOfSpeech": "PUNCT",
+          "originalChunk": "?",
+          "details": "A question mark indicating a direct question."
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000014",
+    "lang": "ko",
+    "title": "화장실 어디예요?",
+    "sentenceType": "question",
+    "source": null,
+    "writingTransliterated": "Hwajangsil eodiyeyo?",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Where is the bathroom?",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "NOUN",
+          "originalChunk": "화장실",
+          "baseForm": "화장실",
+          "frequencyRank": null,
+          "details": "A bathroom or restroom.",
+          "translationInContext": "bathroom",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "hwajangsil"
+        },
+        {
+          "type": "word",
+          "partOfSpeech": "PRON",
+          "originalChunk": "어디예요",
+          "baseForm": "어디",
+          "frequencyRank": null,
+          "details": "어디, where, combined with the polite copula 예요.",
+          "translationInContext": "where is it",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "eodiyeyo"
+        },
+        {
+          "type": "punctuation",
+          "partOfSpeech": "PUNCT",
+          "originalChunk": "?",
+          "details": "A question mark indicating a direct question."
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  },
+  {
+    "id": "e9b738a0-6017-4c35-90d4-000000000018",
+    "lang": "ko",
+    "title": "잘 먹었습니다",
+    "sentenceType": "sentence",
+    "source": null,
+    "writingTransliterated": "Jal meogeotseumnida",
+    "writingPhonetic": null,
+    "difficultyLevel": null,
+    "translations": "Thank you for the meal",
+    "breakdown": {
+      "schemaVersion": 1,
+      "items": [
+        {
+          "type": "word",
+          "partOfSpeech": "ADV",
+          "originalChunk": "잘",
+          "baseForm": "잘",
+          "frequencyRank": null,
+          "details": "Describes eating well or enjoying the meal.",
+          "translationInContext": "well",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "jal"
+        },
+        {
+          "type": "word",
+          "partOfSpeech": "VERB",
+          "originalChunk": "먹었습니다",
+          "baseForm": "먹다",
+          "frequencyRank": null,
+          "details": "The formal polite past form of 먹다, to eat. 잘 먹었습니다 expresses thanks after a meal, literally: I ate well.",
+          "translationInContext": "ate",
+          "otherTranslations": [],
+          "writingPhonetic": null,
+          "writingTransliterated": "meogeotseumnida"
+        }
+      ]
+    },
+    "tags": [],
+    "photo": {},
+    "audio": {},
+    "createdAt": "2026-08-28T14:51:17Z",
+    "updatedAt": "2026-08-28T14:51:17Z"
+  }
+]
