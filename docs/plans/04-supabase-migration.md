@@ -1,6 +1,12 @@
 # Supabase migration plan
 
-Status: planned on September 12, 2026. Nothing implemented.
+Status: repository move implemented on September 13, 2026 (Phases 1–3).
+The router is a verified copy of the live one, and the release artifact was
+preflighted in a throwaway Edge Runtime v1.74.0 container on the VPS.
+Pending: Phase 0 baseline, the first real `functions:deploy` and the database
+checks in §6, and Phase 5 archival. Deviation: the `hello` function was
+removed on September 13, 2026 at the owner's request; the per-function
+`OPTIONS` probes are the activation gate, so §6 and risk 5 no longer apply.
 Source project inspected: `nanodracula/dreamproject-old` at commit `effe870`
 (`server/supabase/`, `scripts/supabase-*.sh`, `shared/`, `src/lib/supabase/`).
 

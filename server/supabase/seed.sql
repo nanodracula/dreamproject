@@ -1,0 +1,4 @@
+-- Add repeatable development seed data here.
+-- Keep schema definitions in ./schemas and deployment changes in ./migrations.
+-- Media seed rows must set origin to ai, user, or curated. Use source for an
+-- optional provider, source URL, import source, or attribution.

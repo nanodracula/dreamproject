@@ -1,15 +1,19 @@
 # Content seed plan
 
-Status: planned, not implemented, September 12, 2026.
+Status: planned, not implemented, September 13, 2026.
 Source data: `dreamproject-old` `src/lib/database/seed.ts` at `917575a`.
-Target: `apps/ios/DreamApp/Resources/Seed/` and
+Target now: `apps/ios/DreamApp/Resources/Seed/`.
+Future target, with the Settings button:
 `apps/ios/DreamApp/Infrastructure/Persistence/ContentSeed.swift`.
 
 Ship the existing starter words and sentences with the app as four JSON files,
-split by content type and language, and load them into an empty database on
-first launch. This plan covers the file layout, the JSON shape, the one-off
-conversion from the old TypeScript seed, and the loader. It adds no migration:
-`v2_content` already defines both tables.
+split by content type and language. Import them only when the user taps a
+future Settings button. First launch leaves the content tables empty; the
+existing settings initialization stays as it is. This plan covers the file
+layout, the JSON shape, and the one-off conversion from the old TypeScript
+seed, and records the future manual import behavior. Implement the loader
+when the Settings button has a caller. It adds no migration: `v2_content`
+already defines both tables.
 
 ## 1. What the seed contains
 
@@ -45,8 +49,8 @@ apps/ios/DreamApp/Resources/Seed/
 └── words.ko.json
 ```
 
-- The only consumer is the Swift app, at first launch and later at a dev-tools
-  reset. Anything outside the app target is unreadable at runtime without a
+- The only consumer is the Swift app, through the future Settings import
+  action. Anything outside the app target is unreadable at runtime without a
   build phase that copies it in.
 - `DreamApp/` is a synchronized folder group, so a new `Resources/Seed/` folder
   needs no `project.pbxproj` edit; the files join Copy Bundle Resources
@@ -209,37 +213,41 @@ After the split, verify that every `sentenceIds` entry on a word resolves to a
 sentence in that same language's file. A dangling reference is a conversion
 bug to fix at the source, not something the loader is expected to tolerate.
 
-## 6. Loader
+## 6. Future loader (deferred)
 
+When the Settings action is implemented, add
 `Infrastructure/Persistence/ContentSeed.swift`, one file holding the decoder,
-the language list, and the import. Not in `Core/` (Foundation-only models, no
-`Bundle`, no GRDB), and not a new folder, since a single file does not need
-one.
+the seed language list, and the import. Not in `Core/` (Foundation-only
+models, no `Bundle`, no GRDB), and not a new folder, since a single file does
+not need one. Do not add this file before it has a caller.
+
+The intended import shape is:
 
 ```swift
 import Foundation
 import GRDB
 
-/// Bundled starter content, loaded once into an empty database.
+/// Bundled starter content, imported explicitly from Settings.
 ///
 /// The JSON files in `Resources/Seed/` are the source of truth for this
 /// content and decode directly into `Word` and `Sentence`.
 nonisolated enum ContentSeed {
-    /// Languages with a seed file. Read this from `LearningLanguage` once that
-    /// configuration type exists.
-    static let languages = ["ja", "ko"]
+    /// Only languages with bundled seed files, not every supported language.
+    static let seededLanguageCodes = ["ja", "ko"]
 
-    /// Inserts the bundled rows when the content tables are empty.
-    static func importIfNeeded(into database: AppDatabase, from bundle: Bundle = .main) throws {
+    /// Adds missing seed IDs while preserving every existing row.
+    static func importContent(into database: AppDatabase, from bundle: Bundle = .main) throws {
         try database.writer.write { db in
-            guard try Sentence.fetchCount(db) == 0, try Word.fetchCount(db) == 0 else { return }
-
-            for lang in languages {
+            for lang in seededLanguageCodes {
                 for sentence in try decode([Sentence].self, "sentences.\(lang)", from: bundle) {
-                    try sentence.insert(db)
+                    if try !Sentence.exists(db, key: sentence.id) {
+                        try sentence.insert(db)
+                    }
                 }
                 for word in try decode([Word].self, "words.\(lang)", from: bundle) {
-                    try word.insert(db)
+                    if try !Word.exists(db, key: word.id) {
+                        try word.insert(db)
+                    }
                 }
             }
         }
@@ -260,48 +268,64 @@ nonisolated enum ContentSeed {
 }
 ```
 
-Wiring:
+- Call it only from the future Settings action. Do not wire it into
+  `AppDependencies.live()`, `AppDatabase.init`, or any launch path.
+- Import into empty or populated content tables in one transaction. Stable
+  IDs make repeated imports safe: skip IDs already present, preserving user
+  edits, favorites, and soft-deleted rows. Do not delete, replace, or upsert
+  existing rows. A physically removed seed row can be added again by another
+  explicit import; launching the app never restores it.
+- Keep the seed language subset explicit. Plan 06 supports languages that
+  have no bundled seed files.
+- A missing or malformed seed file is a build mistake. Let the loader throw
+  and roll back the entire import; the Settings action reports the failure.
+  Seed decoding is not part of app startup.
 
-```swift
-static func live() throws -> AppDependencies {
-    let database = try AppDatabase.openPersistent()
-    try ContentSeed.importIfNeeded(into: database)
-    return AppDependencies(database: database)
-}
-```
+## 7. Settings button (deferred)
 
-- Call it from `AppDependencies.live()`, not from `AppDatabase.init`. That
-  keeps `openInMemory()` empty for tests, and a test that wants content passes
-  its own bundle.
-- Import only when both tables are empty, in one transaction, mirroring
-  `createInitialRecordsIfNeeded`. An existing library is never touched, so a
-  user who deleted seed rows does not get them back on the next launch.
-- A missing or malformed seed file is a build mistake, not a runtime
-  condition. Let it throw; `AppDependencies.live()` already does.
+Later, add an "Import starter content" button in Settings that calls the
+loader in §6. It imports the bundled Japanese and Korean content into the
+existing library and leaves the active learning language unchanged. Show
+completion or failure and prevent overlapping imports while it runs.
 
-## 7. Dev reset
-
-Deferred. The old app exposed `resetDatabaseFromSeed()` behind its dev tools.
-When that screen arrives, add a `reimport(into:)` that deletes both tables and
-inserts in the same transaction, sharing the decode step with
-`importIfNeeded`. Do not add it before there is a caller.
+This is an additive import action. The old app's destructive
+`resetDatabaseFromSeed()` is not carried over. Implement the button and its
+loader together when the Settings screen arrives.
 
 ## 8. Verification
 
-- Build, delete the app, and launch on a clean simulator: the two languages
-  hold 96 sentences and 44 words, with Japanese active.
-- Relaunch: counts unchanged, no duplicate rows.
+For the bundled files now:
+
+- Build and confirm all four JSON files are included in the app bundle.
+- Verify the files contain 96 sentences and 44 words with the per-language
+  counts in §1, and that word-to-sentence references resolve.
 - Spot-check one helper-built Korean sentence and one object-form Japanese
   sentence: breakdown items, punctuation details, transliteration, phonetic
-  writing, and the flat translation all survive.
-- Confirm timestamps decode. The fractional-second mismatch in §3 is the
-  likely failure, and it surfaces as a decode error on the whole file.
-- Confirm `favoritedAt` and `deletedAt` are null on every imported row.
+  writing, and the flat translation all survive conversion.
+- Verify timestamps follow §3 and `favoritedAt` and `deletedAt` are absent
+  or null in every seed row.
 - If §4 audio is included, confirm one storage path resolves in the `audio`
   bucket.
-- Do not add tests without approval. Do not commit or push without approval.
+- On a clean installation, launch and relaunch: both content tables stay
+  empty, with Japanese active through the existing settings initialization.
+
+When the Settings button and loader are implemented:
+
+- Import into an empty library: it contains 96 sentences and 44 words.
+  Confirm timestamps and all four files decode with the current models.
+- Import again and relaunch: counts stay unchanged, with no duplicate rows.
+- Import into a populated library: user-created rows, edits, favorites, and
+  soft-deleted seed rows remain unchanged; only missing seed IDs are added.
+- Confirm importing leaves the active learning language unchanged.
+- Confirm an import failure rolls back all inserts and is reported in
+  Settings.
+
+Do not add tests without approval. Ask before opening the iPhone simulator.
+Do not commit or push without approval.
 
 ## 9. Out of scope
 
-Curated content sync from Supabase, media downloads, additional languages,
-per-deck seeds, and the dev-tools reset screen.
+The Settings screen, its import button, and the loader implementation are
+deferred as described above. Automatic seeding, destructive reset, curated
+content sync from Supabase, updates to already imported rows, media downloads,
+additional languages, and per-deck seeds are out of scope.

@@ -14,7 +14,7 @@ DreamProject/
 │   ├── ci/
 │   │   └── Dockerfile           # empty placeholder for a future tooling image
 │   ├── run-ios.sh               # build, test, and run the iOS app
-│   └── db/
+│   └── supabase/                # tunnel and deployment scripts for server/ (plan 04)
 ├── docs/
 │   └── 01-init.md               # this Markdown plan
 ├── .gitignore
@@ -32,7 +32,7 @@ structure; implementation of the web app remains future work. Android is
 outside the current repository scope; do not create `apps/android/`.
 
 Use `tools/` as the single home for repository helper scripts, with iOS commands
-in `tools/run-ios.sh` and database/CI helpers in `tools/db/` and `tools/ci/`.
+in `tools/run-ios.sh` and Supabase tunnel and deployment helpers in `tools/supabase/` (added by plan 04, replacing the empty `tools/db/` placeholder) and CI helpers in `tools/ci/`.
 Native platform
 configuration stays with its app: Fastlane under `apps/ios/fastlane/` and web package scripts under
 `apps/web/package.json` when those tools are introduced. Mise tasks invoke
@@ -91,7 +91,7 @@ introduced. Node.js, Java, Fastlane, and Docker are not initial prerequisites.
    separate step. Create an empty `AGENTS.md` and a relative symbolic link
    `CLAUDE.md -> AGENTS.md`. Keep this plan at `docs/plans/01-init.md`.
    Create `apps/ios/`, `apps/web/`, `server/supabase/`,
-   `tools/ci/`, `tools/db/`, and `docs/` as shown above.
+   `tools/ci/`, `tools/db/` (since replaced by `tools/supabase/`), and `docs/` as shown above.
    Use `.gitkeep` files where an otherwise empty directory needs to be tracked
    by Git; remove them when real files are added.
 

@@ -1,4 +1,10 @@
-# iOS uses Xcode's bundled toolchain. Add [tools] only as dependencies arrive.
+# iOS uses Xcode's bundled toolchain. Deno and the Supabase CLI serve server/.
+
+[tools]
+deno = "2"
+"aqua:supabase/cli" = "2.65.2"
+
+# === 1. IOS
 
 [tasks."ios:build"]
 description = "Build DreamApp for iOS Simulator"
@@ -11,6 +17,26 @@ run = "bash tools/run-ios.sh run"
 [tasks."ios:test"]
 description = "Test DreamApp on an explicit iOS Simulator destination"
 run = "bash tools/run-ios.sh test"
+
+# === 2. SUPABASE
+
+[tasks."db:tunnel"]
+description = "Open the SSH tunnel to the remote Postgres"
+run = "bash tools/supabase/tunnel.sh start"
+
+[tasks."db:deploy"]
+description = "Push pending migrations to the remote database"
+run = "bash tools/supabase/db-deploy.sh"
+
+[tasks."functions:check"]
+description = "Typecheck, lint, and format-check the edge functions"
+run = "deno task --config server/supabase/functions/deno.json check"
+
+[tasks."functions:deploy"]
+description = "Deploy a versioned edge-functions release"
+run = "bash tools/supabase/functions-deploy.sh"
+
+# === 3. OTHER
 
 [tasks."git:commit"]
 description = "Stage all changes and commit via Codex"
