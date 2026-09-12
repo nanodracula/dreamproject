@@ -7,7 +7,7 @@ Rules for `apps/ios/DreamApp/`. Folders exist only when they have content.
 - `App/`: entry point, `AppDependencies` (composition root), `RootView`, navigation. Only place that wires features together.
 - `Features/<Name>/`: `UI/` always; `Logic/` and `Data/` only when needed (see below).
 - `Core/`: shared models and contracts. Plain Swift, imports Foundation only. No GRDB, SwiftUI, or feature code.
-- `Core/Contracts/` holds only protocols for process or hardware boundaries. Repositories over SQLite have no protocol.
+- `Core/Contracts/` holds only shared protocols for process or hardware boundaries. Repositories over SQLite have no protocol.
 - `Infrastructure/`: GRDB record extensions, migrations, shared repositories, Supabase, sync, media cache, SDK wrappers (audio, speech, keychain, notifications).
 - `SharedUI/`: reusable domain views. Depend on Core, receive services by injection.
 - `DesignSystem/`: generic components and visual tokens. Per-feature theme files do not exist.
@@ -42,17 +42,17 @@ extension Sentence: FetchableRecord, PersistableRecord {
 
 ## Queries and repositories
 
-- Column names appear only in record extensions (request builders). Repositories and feature queries compose requests and never spell out a column.
+- Column names are defined once, in `Columns` inside the record extension. Repositories and feature queries use `Model.Columns.x`; never `Column("x")` string literals. Migrations and raw SQL use schema names directly.
+- Frequently reused predicates (active rows, favorites) are request builders on the record extension. One-off filters and sorts are composed inline.
 - Shared repositories (used by 2+ features) are concrete structs in `Infrastructure/Repositories/`, hold `AppDatabase`, and expose one-shot fetches, `ValueObservation` streams, and writes.
 - Feature-only queries live in `Features/<Name>/Data/` (for example `FeedQueries`). Move to Infrastructure when a second feature needs them.
 - `Data/` also holds request/response payloads and mappers for endpoints only that feature calls. `Data/` may import GRDB and networking; `UI/` and `Logic/` may not.
 
 ## Protocols
 
-Rule: a protocol exists only where a test or preview cannot run the real thing.
-
-- Concrete, injected with `AppDatabase`: everything backed by SQLite. Tests use the in-memory database.
-- Protocol, in `Core/Contracts/`: anything crossing a process or hardware boundary. Supabase/HTTP, audio playback, speech, TTS, keychain, notifications, clock.
+- Introduce a protocol when a consumer needs a controllable substitute in tests or previews. Typical cases: Supabase/HTTP, audio, speech, keychain, notifications, clock. Decide up front for hardware and network; retrofitting is cheap but tedious.
+- SQLite repositories stay concrete, injected with `AppDatabase`; the in-memory database is their substitute.
+- Feature-specific contracts live with the feature. `Core/Contracts/` holds only shared ones.
 
 ## Live UI data
 
@@ -63,9 +63,9 @@ Rule: a protocol exists only where a test or preview cannot run the real thing.
 
 ## Dependencies
 
-- All dependencies are constructed in `AppDependencies` and injected into view models from `App/`. No module-level singletons.
-- Start with folders, not Swift packages. Boundaries are conventions until they leak.
-- If leaks appear or a second developer joins, promote `Core`, `Infrastructure`, and `DesignSystem` to local Swift packages so the compiler enforces the dependency direction. Budget one afternoon. When `Core` becomes a package, record extensions in Infrastructure need `@retroactive` on the GRDB conformances.
+- `AppDependencies` owns the database, shared repositories, and platform services. Features assemble their own view models and queries from those. `App/` owns navigation between features.
+- No module-level singletons.
+- Start with folders. Extract `Core`, `Infrastructure`, and `DesignSystem` into local packages only when compiler-enforced boundaries solve an actual problem. It is a separate refactor: public access control, explicit public initializers, `@retroactive` GRDB conformances, test target split. The cost grows with code size, so decide early if you want it at all.
 
 ## Project root
 
