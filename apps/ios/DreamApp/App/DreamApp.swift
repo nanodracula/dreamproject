@@ -2,12 +2,11 @@ import SwiftUI
 
 @main
 struct DreamApp: App {
-    /// The persistent app database, opened and migrated at startup.
-    let database: AppDatabase
+    let dependencies: AppDependencies
 
     init() {
         do {
-            database = try AppDatabase.openPersistent()
+            dependencies = try AppDependencies.live()
         } catch {
             fatalError("Could not open the app database: \(error)")
         }
@@ -15,7 +14,8 @@ struct DreamApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView()
+                .environment(dependencies)
         }
     }
 }

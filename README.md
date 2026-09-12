@@ -4,7 +4,7 @@ Native SwiftUI app: **DreamApp**, iPhone/iPad, iOS 26.0+, Swift 6.
 Bundle ID: `com.example.DreamProject`. Project and shared scheme: `DreamApp`.
 Sources: `apps/ios/DreamApp/`; tests: `apps/ios/DreamAppTests/` (synchronized folders).
 Dependency: [GRDB](https://github.com/groue/GRDB.swift) 7 (Swift package, resolved by Xcode).
-Settings storage: see `docs/02-settings-storage.md`.
+Architecture: `docs/architecture.md`. Storage plans: `docs/plans/`.
 
 ## Setup
 

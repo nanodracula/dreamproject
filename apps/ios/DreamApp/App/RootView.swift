@@ -1,6 +1,8 @@
 import SwiftUI
 
-struct ContentView: View {
+struct RootView: View {
+    @Environment(AppDependencies.self) private var dependencies
+
     var body: some View {
         VStack {
             Image(systemName: "globe")
@@ -13,5 +15,6 @@ struct ContentView: View {
 }
 
 #Preview {
-    ContentView()
+    RootView()
+        .environment(AppDependencies(database: try! AppDatabase.openInMemory()))
 }

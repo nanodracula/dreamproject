@@ -1,11 +1,8 @@
 import Foundation
-import GRDB
 
 /// A vocabulary word in a learning language, with one selected translation
 /// and embedded media metadata.
-nonisolated struct Word: Codable, Equatable, Sendable, FetchableRecord, PersistableRecord {
-    static let databaseTableName = "words"
-
+nonisolated struct Word: Codable, Equatable, Sendable {
     var id: UUID
     var lang: String
     var title: String
@@ -69,48 +66,37 @@ nonisolated struct Word: Codable, Equatable, Sendable, FetchableRecord, Persista
         self.updatedAt = updatedAt
         self.deletedAt = deletedAt
     }
+}
 
-    enum CodingKeys: String, CodingKey {
-        case id
-        case lang
-        case title
-        case definition
-        case baseForm = "base_form"
-        case partOfSpeech = "part_of_speech"
-        case writingTransliterated = "writing_transliterated"
-        case writingPhonetic = "writing_phonetic"
-        case difficultyLevel = "difficulty_level"
-        case frequencyRank = "frequency_rank"
-        case translations
-        case tags
-        case sentenceIds = "sentence_ids"
-        case photo
-        case audio
-        case favoritedAt = "favorited_at"
-        case createdAt = "created_at"
-        case updatedAt = "updated_at"
-        case deletedAt = "deleted_at"
-    }
+/// Universal part-of-speech tags shared by words and sentence breakdowns.
+nonisolated enum PartOfSpeech: String, Codable, Sendable, CaseIterable {
+    case adjective = "ADJ"
+    case adposition = "ADP"
+    case adverb = "ADV"
+    case auxiliary = "AUX"
+    case coordinatingConjunction = "CCONJ"
+    case determiner = "DET"
+    case interjection = "INTJ"
+    case noun = "NOUN"
+    case numeral = "NUM"
+    case particle = "PART"
+    case pronoun = "PRON"
+    case properNoun = "PROPN"
+    case punctuation = "PUNCT"
+    case subordinatingConjunction = "SCONJ"
+    case symbol = "SYM"
+    case verb = "VERB"
+    case other = "X"
+}
 
-    enum Columns {
-        static let id = Column(CodingKeys.id)
-        static let lang = Column(CodingKeys.lang)
-        static let title = Column(CodingKeys.title)
-        static let definition = Column(CodingKeys.definition)
-        static let baseForm = Column(CodingKeys.baseForm)
-        static let partOfSpeech = Column(CodingKeys.partOfSpeech)
-        static let writingTransliterated = Column(CodingKeys.writingTransliterated)
-        static let writingPhonetic = Column(CodingKeys.writingPhonetic)
-        static let difficultyLevel = Column(CodingKeys.difficultyLevel)
-        static let frequencyRank = Column(CodingKeys.frequencyRank)
-        static let translations = Column(CodingKeys.translations)
-        static let tags = Column(CodingKeys.tags)
-        static let sentenceIds = Column(CodingKeys.sentenceIds)
-        static let photo = Column(CodingKeys.photo)
-        static let audio = Column(CodingKeys.audio)
-        static let favoritedAt = Column(CodingKeys.favoritedAt)
-        static let createdAt = Column(CodingKeys.createdAt)
-        static let updatedAt = Column(CodingKeys.updatedAt)
-        static let deletedAt = Column(CodingKeys.deletedAt)
-    }
+/// Word frequency buckets. The raw value is the bucket's upper bound.
+nonisolated enum FrequencyRank: Int, Codable, Sendable, CaseIterable {
+    case top100 = 100
+    case top200 = 200
+    case top500 = 500
+    case top1000 = 1000
+    case top2000 = 2000
+    case top5000 = 5000
+    case top10000 = 10000
+    case top20000 = 20000
 }

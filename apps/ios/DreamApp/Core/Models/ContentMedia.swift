@@ -73,3 +73,17 @@ nonisolated struct ContentAudio: Codable, Equatable, Sendable {
         self.translation = translation
     }
 }
+
+/// Where a media asset came from.
+nonisolated enum MediaOrigin: String, Codable, Sendable, CaseIterable {
+    case ai
+    case user
+    case curated
+}
+
+/// The speaking pace of an audio recording.
+nonisolated enum AudioPace: String, Codable, Sendable, CaseIterable {
+    case slow
+    case normal
+    case fast
+}

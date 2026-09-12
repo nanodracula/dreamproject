@@ -2,8 +2,8 @@
 
 Status: schema and models implemented and verified on September 12, 2026
 (GRDB 7.11.1, Xcode 26.6). Import, sync, and downloads are not implemented.
-Code: `apps/ios/DreamApp/Database/AppDatabase.swift` (`v2_content` migration),
-`apps/ios/DreamApp/Content/`.
+Code: `apps/ios/DreamApp/Infrastructure/Persistence/` (`v2_content` migration, record extensions),
+`apps/ios/DreamApp/Core/Models/`.
 
 Add local `words` and `sentences` tables with plain translation text and
 embedded media metadata. Curated Supabase content keeps its own structure;

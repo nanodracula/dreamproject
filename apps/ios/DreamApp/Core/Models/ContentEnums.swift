@@ -1,8 +1,7 @@
 import Foundation
-import GRDB
 
 /// Universal part-of-speech tags shared by words and sentence breakdowns.
-nonisolated enum PartOfSpeech: String, Codable, Sendable, CaseIterable, DatabaseValueConvertible {
+nonisolated enum PartOfSpeech: String, Codable, Sendable, CaseIterable {
     case adjective = "ADJ"
     case adposition = "ADP"
     case adverb = "ADV"
@@ -23,7 +22,7 @@ nonisolated enum PartOfSpeech: String, Codable, Sendable, CaseIterable, Database
 }
 
 /// The kind of a sentence row.
-nonisolated enum SentenceType: String, Codable, Sendable, CaseIterable, DatabaseValueConvertible {
+nonisolated enum SentenceType: String, Codable, Sendable, CaseIterable {
     case phrase
     case sentence
     case question
@@ -44,7 +43,7 @@ nonisolated enum AudioPace: String, Codable, Sendable, CaseIterable {
 }
 
 /// Word frequency buckets. The raw value is the bucket's upper bound.
-nonisolated enum FrequencyRank: Int, Codable, Sendable, CaseIterable, DatabaseValueConvertible {
+nonisolated enum FrequencyRank: Int, Codable, Sendable, CaseIterable {
     case top100 = 100
     case top200 = 200
     case top500 = 500

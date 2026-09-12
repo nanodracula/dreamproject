@@ -1,8 +1,8 @@
 # Settings storage plan
 
 Status: implemented and verified on September 12, 2026 (GRDB 7.11.1, Xcode 26.6).
-Code: `apps/ios/DreamApp/Database/AppDatabase.swift`,
-`apps/ios/DreamApp/Settings/`, tests in `apps/ios/DreamAppTests/`.
+Code: `apps/ios/DreamApp/Infrastructure/Persistence/`,
+`apps/ios/DreamApp/Core/Models/`, `apps/ios/DreamApp/Infrastructure/Preferences/`, tests in `apps/ios/DreamAppTests/Infrastructure/`.
 
 Use GRDB for account and learning settings, and `UserDefaults` for device
 preferences. This phase implements settings persistence only.
@@ -106,7 +106,7 @@ images themselves belong on disk; downloading is outside this phase.
 ## 5. Verification
 
 This phase adds the previously deferred `DreamAppTests` target, as described in
-`docs/01-init.md` step 4: a separate synchronized folder at
+`docs/plans/01-init.md` step 4: a separate synchronized folder at
 `apps/ios/DreamAppTests/`, included in the shared scheme's test action. The
 settings code is pure records against a database, so the checks below are
 unit tests running against an isolated in-memory `DatabaseQueue` and an

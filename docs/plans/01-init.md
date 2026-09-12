@@ -53,7 +53,7 @@ possible, so target membership and resource inclusion must be verified.
 
 - Steps 1–3, 5, and 6 are implemented. Step 4 paths are verified; the
   `DreamAppTests` target was added with the settings storage phase
-  (`docs/02-settings-storage.md`).
+  (`docs/plans/02-settings-storage.md`).
 - Step 7 checks passed for the implemented scope on September 12, 2026:
   Xcode opening and shared scheme discovery, Simulator build/launch, portable
   paths, actual app build inputs, shell syntax, task definitions, ignore rules,
@@ -89,7 +89,7 @@ introduced. Node.js, Java, Fastlane, and Docker are not initial prerequisites.
 1. **Initialize repository metadata and create the directory structure.**
    Initialize Git with an initial branch named `main`; leave commits for a
    separate step. Create an empty `AGENTS.md` and a relative symbolic link
-   `CLAUDE.md -> AGENTS.md`. Keep this plan at `docs/01-init.md`.
+   `CLAUDE.md -> AGENTS.md`. Keep this plan at `docs/plans/01-init.md`.
    Create `apps/ios/`, `apps/web/`, `server/supabase/`,
    `tools/ci/`, `tools/db/`, and `docs/` as shown above.
    Use `.gitkeep` files where an otherwise empty directory needs to be tracked
