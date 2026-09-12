@@ -75,6 +75,7 @@ dreamproject/
 │       ├── migrations/
 │       └── functions/
 │           ├── deno.json
+│           ├── deno.lock          # committed; shared by all edge functions
 │           ├── .env.example       # names of provider keys the edge runtime needs
 │           ├── main/              # checked-in Supabase router (§4e)
 │           ├── _shared/
@@ -142,20 +143,32 @@ check, and `zod_specifier` check against `deno.json`. Keep the release marker,
 activation checks, and rollback machinery. Deployment copies the sources
 without changing their imports.
 
-`deno.json` owns the single check task and has no import map or lockfile:
+`deno.json` owns the single check task and has no import map. Keep lockfile
+generation enabled by omitting `"lock": false`:
 
 ```jsonc
 {
-    "lock": false,
     "tasks": {
-        "check": "deno check */index.ts && deno lint . && deno fmt --check ."
+        "check": "deno check --frozen */index.ts && deno lint . && deno fmt --check ."
     },
     "compilerOptions": { "strict": true },
     "fmt": { "lineWidth": 100, "useTabs": true, "singleQuote": true, "semiColons": false }
 }
 ```
 
-Do not introduce `deno.lock`. Keep explicit dependency specifiers in source.
+Commit one `server/supabase/functions/deno.lock` beside `deno.json`, shared by
+all functions and the router. Keep explicit dependency specifiers in source;
+the lockfile additionally records resolved dependencies and integrity hashes.
+Generate it after relocating imports by running `deno check */index.ts` from
+the functions directory. For intentional dependency updates, run that command
+again and review the lockfile diff alongside the source changes. Normal checks
+and deployments use `--frozen` so they fail rather than silently update it.
+
+Include the lockfile unchanged in the release artifact. During implementation,
+verify its format and how it is loaded by the deployed Edge Runtime image
+recorded in §4e. Document any runtime limitation in `server/README.md`; copying
+the file alone does not establish that runtime resolution enforces it.
+
 Swift payload types are maintained independently; existing enum values are
 recorded in [plan 03](03-content-storage.md). No shared package or code
 generation is needed.
@@ -276,7 +289,8 @@ deno task --config "$repo_root/server/supabase/functions/deno.json" check
 ```
 
 Deno runs the task from the configuration directory, so imports and formatting
-settings resolve consistently. Finish checks before uploading a release.
+settings resolve consistently. The frozen check must pass against the committed
+lockfile before uploading a release; deployment must not regenerate it.
 
 Every Supabase CLI command uses `--workdir server` from the repository root,
 or the absolute equivalent in scripts, to select `server/supabase/config.toml`
@@ -378,9 +392,11 @@ need an SSH key on the runner, so keep those manual until that is wanted.
 6. `functions-deploy.sh`: remove artifact import rewriting, check in `main/`
    as in §4e, and remove the remote router-copy and patch steps. Run the shared
    Deno check task before uploading.
-7. Add the `deno.json` task and disable lockfile generation. Add `[tools]` and
-   tasks to `mise.toml`; delete `tools/db/.gitkeep`; update `01-init.md` and
-   `README.md`. Keep check commands defined only in `deno.json`.
+7. Add the `deno.json` task, generate and commit the shared `deno.lock`, and
+   verify compatibility with the deployed Edge Runtime as described in §2.
+   Include the lockfile in releases. Add `[tools]` and tasks to `mise.toml`;
+   delete `tools/db/.gitkeep`; update `01-init.md` and `README.md`. Keep check
+   commands defined only in `deno.json`.
 
 ### Phase 3 — environment and documentation
 
@@ -413,7 +429,12 @@ See §6. Do not proceed past a failing check.
   difference between replayed migrations and the live public schema. This
   does not establish that declarative `schemas/` matches production; compare
   those copied files with the source separately.
-- `mise run functions:check` passes and does not create `deno.lock`.
+- `server/supabase/functions/deno.lock` is tracked and covers all function
+  entrypoints, including the router. `mise run functions:check` passes without
+  changing it; a missing or stale lockfile fails the frozen check.
+- The release contains the committed lockfile unchanged. Verify that functions
+  load with it under the recorded Edge Runtime image, and document whether
+  runtime dependency resolution enforces it as described in §2.
 - Function sources contain no bare `zod` or `@root/shared/` imports, no
   `_shared/config/`, and no copied user-settings or writing-display helpers.
 - `mise run functions:deploy` produces a new release id, `/hello` answers, every
@@ -449,11 +470,11 @@ See §6. Do not proceed past a failing check.
 
 Included: moving the Supabase project files and deployment tooling, folding the
 backend-used contracts into their function owners, checking in the router,
-the environment and credential layout, the shared check task, mise tasks,
-and the verification procedure.
+the environment and credential layout, the committed Deno lockfile, the shared
+frozen check task, mise tasks, and the verification procedure.
 
 Deferred: backup tooling, server-side schema changes, the
 [Supabase Swift integration](07-supabase-ios-integration.md), continuous
-integration, and the web app's type generation. No Deno lockfile is planned.
+integration, and the web app's type generation.
 
 Writing this plan does not move any file, change any script, or deploy anything.
