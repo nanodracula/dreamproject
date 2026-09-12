@@ -1,0 +1,13 @@
+# iOS uses Xcode's bundled toolchain. Add [tools] only as dependencies arrive.
+
+[tasks."ios:build"]
+description = "Build DreamProject for iOS Simulator"
+run = "bash tools/run-ios.sh build"
+
+[tasks."ios:run"]
+description = "Build and launch DreamProject in iOS Simulator"
+run = "bash tools/run-ios.sh run"
+
+[tasks."ios:test"]
+description = "Test DreamProject on an explicit iOS Simulator destination"
+run = "bash tools/run-ios.sh test"

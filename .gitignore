@@ -1,0 +1,44 @@
+# macOS metadata
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+
+# Xcode user state; shared schemes and project configuration stay tracked.
+xcuserdata/
+*.xcuserstate
+
+# Build products and caches
+DerivedData/
+build/
+.build/
+dist/
+node_modules/
+*.xcarchive/
+*.xcresult/
+*.ipa
+*.dSYM/
+*.dSYM.zip
+
+# Local environment configuration; keep safe examples and templates.
+.env
+.env.*
+!.env.example
+!.env.*.example
+!.env.sample
+!.env.*.sample
+!.env.template
+!.env.*.template
+mise.local.toml
+mise.*.local.toml
+.mise.local.toml
+.mise.*.local.toml
+
+# Private keys, signing credentials, and local secret storage
+.secrets/
+*.key
+*.p8
+*.p12
+*.pfx
+*.mobileprovision
+*.provisionprofile

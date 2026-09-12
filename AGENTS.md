@@ -1,0 +1,3 @@
+- If i ask question, asnwer it and provide code in chat, don't change files. Make cnanges only when my message looks like command.
+- Do not be over-protective when evaluating potential problems if there are unlikely edge cases, instead, be pragmatic and focus on the most likely scenarios.
+- Do not push or commit without my approval.
