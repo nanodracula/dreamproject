@@ -1,12 +1,12 @@
 # Supabase migration plan
 
-Status: repository move implemented on September 13, 2026 (Phases 1–3).
-The router is a verified copy of the live one, and the release artifact was
-preflighted in a throwaway Edge Runtime v1.74.0 container on the VPS.
-Pending: Phase 0 baseline, the first real `functions:deploy` and the database
-checks in §6, and Phase 5 archival. Deviation: the `hello` function was
-removed on September 13, 2026 at the owner's request; the per-function
-`OPTIONS` probes are the activation gate, so §6 and risk 5 no longer apply.
+Status: repository move, live baseline, first deployment, and real generation
+calls verified on September 13, 2026. Migration IDs and application schema
+definitions match; enum ownership and platform permission differences remain
+documented in §8, so the raw schema diff is not empty. Live JWT verification
+is disabled, and card-breakdown remains a stub. Phase 5 archival is pending.
+The `hello` function was removed at the owner's request; per-function
+`OPTIONS` probes are the activation gate.
 Source project inspected: `nanodracula/dreamproject-old` at commit `effe870`
 (`server/supabase/`, `scripts/supabase-*.sh`, `shared/`, `src/lib/supabase/`).
 
@@ -92,8 +92,7 @@ dreamproject/
 │           │   ├── index.ts       # HTTP envelope, routing, responses
 │           │   └── workflows/     # each workflow owns its schemas and prompt
 │           ├── generate-image/
-│           ├── generate-audio/
-│           └── hello/
+│           └── generate-audio/
 ├── tools/
 │   └── supabase/
 │       ├── env.sh                # shared operator configuration loader
@@ -195,6 +194,8 @@ rule changes.
 # server/.env.example
 
 # --- Remote Postgres (through the SSH tunnel) ---
+# Supavisor: postgres.<POOLER_TENANT_ID>; direct Postgres: postgres.
+SUPABASE_DB_USER=
 POSTGRES_PASSWORD=
 
 # --- Infrastructure identifiers ---
@@ -310,7 +311,7 @@ The Supabase CLI and Deno are now real dependencies. `mise.toml` has no
 ```toml
 [tools]
 deno = "2"
-"aqua:supabase/cli" = "2.65.2"   # pin to the version in use
+"aqua:supabase/cli" = "2.117.0"   # compatible with the committed config.toml
 
 [tasks."db:tunnel"]
 description = "Open the SSH tunnel to the remote Postgres"
@@ -443,7 +444,7 @@ See §6. Do not proceed past a failing check.
   runtime dependency resolution enforces it as described in §2.
 - Function sources contain no bare `zod` or `@root/shared/` imports, no
   `_shared/config/`, and no copied user-settings or writing-display helpers.
-- `mise run functions:deploy` produces a new release id, `/hello` answers, every
+- `mise run functions:deploy` produces a new release id, every
   function passes its `OPTIONS` probe, and the previous release is retained.
 - One real call per function from a client using the anon key and an anonymous
   session.
@@ -465,12 +466,60 @@ See §6. Do not proceed past a failing check.
    reach the app.
 4. **Storage policies depend on the upload path prefix.** The iOS uploader must
    write `{uid}/filename.ext` into the `ugc-*` buckets or every insert is denied.
-5. **`hello` is the deployment health probe**, not dead code. Activation is
-   gated on it. Do not delete it.
+5. **Every function's `OPTIONS` probe gates activation.** These probes establish
+   worker startup, not provider success or JWT enforcement; verify those separately.
 6. **Never run `supabase db reset` against the tunnel.** It is a local-stack
    command; pointed at production it drops everything.
 7. **Two repositories able to deploy to one stack** is the real risk window.
    Keep it short by completing Phase 5 promptly.
+
+## 8. Live verification — September 13, 2026
+
+- Recorded baseline release `20260911T124727Z-54169b6026ae` and PostgreSQL
+  17.6. All six local migration versions match the live migration history.
+  The corrected `mise run db:deploy` completed with `upToDate: true` and no
+  migrations, seeds, or roles to apply. No schema or content-data changes were applied.
+- Fixed two repository tooling defects exposed by real connections: CLI
+  2.65.2 rejected the committed config, so mise now pins 2.117.0; the Supavisor
+  connection needs `SUPABASE_DB_USER=postgres.<POOLER_TENANT_ID>` and
+  `sslmode=disable` inside the encrypted SSH tunnel. The operator configuration
+  and runbook now include these settings.
+- Replayed all six migrations through the CLI on a disposable PostgreSQL 17
+  shadow. pg-delta emitted platform schema/default-privilege changes and a
+  misleading `DROP TYPE public.media_origin`. The `--use-migra` cross-check
+  failed inside the CLI's diff worker with `ECONNREFUSED 127.0.0.1:54320`.
+  Neither diff output was applied.
+- Independently replayed the five public-schema migrations on the exact live
+  image, `supabase/postgres:17.6.1.136`, in a disposable container without
+  networking. Deterministic catalog comparisons matched all 5 tables, 82
+  columns, 14 indexes, 20 constraints, 5 RLS policies, and 90 table grants,
+  including comments, defaults, nullability, and RLS settings. All 7 enum
+  definitions match. The sole application-object difference is the owner of
+  `media_origin`: `supabase_admin` live versus `postgres` on replay. Ownership
+  was not changed. The storage-only migration was checked separately: all six
+  bucket configurations and all three ownership policies match.
+- Deployed release `20260912T184222Z-3dff214a29cc-dirty` on the existing Edge
+  Runtime `v1.76.2`. Every `OPTIONS` probe passed. All 15 deployed source/config
+  files, including `deno.lock`, match the repository by SHA-256; the baseline
+  release remains available for rollback. The `dirty` suffix records local
+  uncommitted work; no commit or push was made by this verification.
+- A temporary anonymous session made five real public-API calls, all HTTP 200:
+  Japanese and Polish card titles, a Japanese example sentence, a tea image,
+  and Japanese speech. Text response shapes and content were checked; the image
+  decoded to a 1200×896 PNG, and the audio was recognized as a 44.1 kHz MP3,
+  about 1.23 s. Invalid payloads and unsupported language codes returned HTTP
+  400. The temporary anonymous account and its local session credentials were
+  removed after verification.
+- Authentication enforcement did **not** pass: the live functions container
+  has `VERIFY_JWT=false`. Missing credentials, an invalid API key, and an invalid
+  bearer token all reached handler validation and returned HTTP 400. The
+  repository's `config.toml` `verify_jwt=true` does not set this self-hosted
+  runtime environment variable. The deployment preserved the existing setting;
+  enforcing JWTs requires a separate persistent Dokploy configuration change.
+- `card-breakdown` was found to ignore its input and send the literal `TODO`
+  as its prompt. It was not treated as a working generation workflow. Implementing
+  that feature, resolving ownership/permission drift, and archiving the old
+  repository remain separate work.
 
 ## Scope
 
@@ -483,4 +532,5 @@ Deferred: backup tooling, server-side schema changes, the
 [Supabase Swift integration](07-supabase-ios-integration.md), continuous
 integration, and the web app's type generation.
 
-Writing this plan does not move any file, change any script, or deploy anything.
+The implementation and live verification record above supersede the original
+planning-only status. No migration history was rewritten.
