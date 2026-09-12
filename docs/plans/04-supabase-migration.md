@@ -32,10 +32,11 @@ What moves:
 | `scripts/supabase-tunnel.sh` | `tools/supabase/tunnel.sh` | env-driven identifiers (§3) |
 | `scripts/supabase-db-deploy.sh` | `tools/supabase/db-deploy.sh` | type generation removed (§4) |
 | `scripts/supabase-functions-deploy.sh` | `tools/supabase/functions-deploy.sh` | alias rewriting and gates removed (§2, §4) |
-| `scripts/supabase-backup.sh` | `tools/supabase/backup.sh` | path fixes only |
 
 What does not move:
 
+- `scripts/supabase-backup.sh`. Backup tooling is deferred; it is not required
+  for this repository move.
 - `src/lib/supabase/client.ts`, `session.ts`, `database.types.ts`. Replaced by
   `apps/ios/DreamApp/Infrastructure/Supabase/`.
 - `drizzle.config.ts` and `src/lib/database/migrations/`. Replaced by the GRDB
@@ -81,8 +82,7 @@ dreamproject/
 │   └── supabase/
 │       ├── tunnel.sh
 │       ├── db-deploy.sh
-│       ├── functions-deploy.sh
-│       └── backup.sh
+│       └── functions-deploy.sh
 └── mise.toml
 ```
 
@@ -102,23 +102,28 @@ temporary artifact, copies `shared/` into `_shared/dreamproject/`, walks every
 `from 'zod'` with `sed`, then verifies no alias import survived.
 
 Swift cannot import TypeScript, so the functions are now the only consumer.
-Moving the contracts to `server/supabase/functions/_shared/contracts/` and
-`_shared/config/` makes the artifact a plain `rsync` of the directory and
-deletes all of that machinery: the rewrite loop, the `rewritten_alias_imports`
-counter, the unresolved-import guard, and the `zod_specifier` pin check against
-`deno.json`.
+Move the contracts to `server/supabase/functions/_shared/contracts/` and
+`_shared/config/`. As a one-time source edit in the new repository, change
+`@root/shared/` imports to relative paths and every bare `zod` import to the
+explicit pinned specifier `npm:zod@4.5.4`. The source then runs with the router's
+`importMapPath = null` and needs no deployment-time import rewriting.
+
+Only after those source edits, remove the rewrite loop, the
+`rewritten_alias_imports` counter, the unresolved-import guard, and the
+`zod_specifier` pin check against `deno.json`. Deploy the function sources by
+`rsync`, retaining the existing release and rollback machinery.
 
 Imports become relative, matching the existing `_shared/providers/*` imports:
 
 ```ts
 import { partsOfSpeech } from '../_shared/contracts/database.ts'
+import { z } from 'npm:zod@4.5.4'
 ```
 
-`deno.json` keeps only the zod specifier:
+`deno.json` has no import map; it keeps the typechecking and formatting settings:
 
 ```jsonc
 {
-	"imports": { "zod": "npm:zod@4.5.4" },
 	"compilerOptions": { "strict": true },
 	"fmt": { "lineWidth": 100, "useTabs": true, "singleQuote": true, "semiColons": false }
 }
@@ -142,16 +147,8 @@ rule changes.
 ```sh
 # server/.env.example
 
-# --- Remote Postgres (through the SSH tunnel, or direct for backups) ---
+# --- Remote Postgres (through the SSH tunnel) ---
 POSTGRES_PASSWORD=
-POSTGRES_EXTERNAL_HOST=
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_DB=postgres
-
-# --- Supabase API (backups read Storage over HTTP) ---
-SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
 
 # --- Infrastructure identifiers ---
 SUPABASE_SSH_HOST=
@@ -219,7 +216,8 @@ nonisolated enum AppConfiguration {
 
 `Config/AppConfiguration.swift` is the slot already reserved in
 `architecture.md`. The `service_role` key must never reach anything the app can
-read; it belongs to `server/.env.local` and the Dokploy environment only.
+read; it stays in the Dokploy environment. The deployment scripts do not need
+it in `server/.env.local`.
 
 ## 4. Deployment
 
@@ -238,10 +236,13 @@ a new id beside the existing ones in the releases directory.
 
 ### a. Drop type generation from `db-deploy.sh`
 
-Nothing consumes `database.types.ts`. The script becomes: start tunnel, then
-`supabase db push --db-url`. When `apps/web/` arrives, reintroduce generation as
-a separate `db:types` task writing into the web app, not as a side effect of
-deploying.
+Nothing consumes `database.types.ts`. The script becomes: load configuration,
+build the connection URL, start the tunnel, then run
+`supabase --workdir "$repo_root/server" db push --db-url "$db_url"`.
+Replace the existing Node-based URL construction with Deno, preserving password
+encoding through the URL API. No Node or npm dependency remains in the tooling.
+When `apps/web/` arrives, reintroduce generation as a separate `db:types` task
+writing into the web app, not as a side effect of deploying.
 
 ### b. Replace the pre-deploy gates with Deno's own
 
@@ -249,13 +250,20 @@ deploying.
 being deployed. Use instead:
 
 ```sh
-deno check server/supabase/functions/*/index.ts
-deno lint server/supabase/functions
-deno fmt --check server/supabase/functions
+cd server/supabase/functions
+deno check */index.ts
+deno lint .
+deno fmt --check .
 ```
 
 This typechecks the actual deployable and is the only gate that still has
 meaning in a repository with no `package.json`.
+
+Run this block from the repository root; inside the deployment script, use
+`cd "$repo_root/server/supabase/functions"` in a subshell. This makes Deno load
+the functions' `deno.json` consistently. Every Supabase CLI command must use
+`--workdir server` from the repository root, or the absolute equivalent in
+scripts, so it reads `server/supabase/config.toml` and the correct migrations.
 
 ### c. Pin the toolchain in `mise.toml`
 
@@ -275,16 +283,13 @@ run = "bash tools/supabase/tunnel.sh start"
 description = "Push pending migrations to the remote database"
 run = "bash tools/supabase/db-deploy.sh"
 
-[tasks."db:backup"]
-description = "Back up the remote database and Storage to a local directory"
-run = "bash tools/supabase/backup.sh"
-
 [tasks."functions:check"]
 description = "Typecheck, lint, and format-check the edge functions"
 run = """
-deno check server/supabase/functions/*/index.ts
-deno lint server/supabase/functions
-deno fmt --check server/supabase/functions
+cd server/supabase/functions
+deno check */index.ts
+deno lint .
+deno fmt --check .
 """
 
 [tasks."functions:deploy"]
@@ -322,46 +327,49 @@ need an SSH key on the runner, so keep those manual until that is wanted.
 
 ## 5. Phases
 
-### Phase 0 — safety net
+### Phase 0 — record the baseline
 
-1. From the old repository, run
-   `bash scripts/supabase-backup.sh --output ~/backups/pre-migration`. Store it
-   outside both repositories; it contains auth data and storage objects read
-   with the service role.
-2. Record the current state for later comparison:
+1. From the old repository root, load `server/.env.local` into the shell and
+   record the current state for later comparison. Use a connection URL with
+   its password percent-encoded as in the deployment script:
 
    ```sh
    bash scripts/supabase-tunnel.sh start
-   supabase migration list --db-url "postgresql://postgres:$POSTGRES_PASSWORD@127.0.0.1:54330/postgres"
+   supabase --workdir server migration list --db-url "$db_url"
    ssh "$SUPABASE_SSH_HOST" "cat $SUPABASE_FUNCTIONS_DIR/.dreamproject-release"
    ```
 
 ### Phase 1 — copy the project (one commit, no behaviour change)
 
-3. Copy `server/supabase/` verbatim, replacing `server/supabase/.gitkeep`.
+2. Copy `server/supabase/` verbatim, replacing `server/supabase/.gitkeep`.
    Do not rename, renumber, or squash any migration file.
-4. Move `shared/contracts/` and `shared/config/` into
+3. Move `shared/contracts/` and `shared/config/` into
    `server/supabase/functions/_shared/`, rewrite the `@root/shared/` imports to
-   relative paths, and trim `deno.json` to the zod-only import map.
-5. Copy the four scripts into `tools/supabase/`, fixing the `scripts/` to
+   relative paths, change bare `zod` imports to `npm:zod@4.5.4`, and remove the
+   `imports` map from `deno.json`.
+4. Copy the three deployment/tunnel scripts into `tools/supabase/`, fixing the `scripts/` to
    `tools/supabase/` repository-root path resolution and replacing hard-coded
    infrastructure defaults with required environment reads.
 
 ### Phase 2 — adapt tooling
 
-6. `db-deploy.sh`: remove the type-generation half.
-7. `functions-deploy.sh`: remove the artifact alias rewriting; replace the
+5. `db-deploy.sh`: remove type generation, replace Node-based URL construction
+   with Deno, and use the explicit Supabase working directory from §4a.
+6. `functions-deploy.sh`: remove the artifact import rewriting after the source
+   imports have been updated; replace the
    npm/tsc gates with `deno check`, `deno lint`, and `deno fmt --check`;
-   optionally vendor `main/` and drop the remote rewrite block.
-8. Add `[tools]` and the tasks to `mise.toml`; delete `tools/db/.gitkeep`;
+   run the checks from the functions directory as in §4b. Optionally vendor
+   `main/` and drop the remote rewrite block.
+7. Add `[tools]` and the tasks to `mise.toml`; delete `tools/db/.gitkeep`;
    update `01-init.md` and `README.md`.
 
 ### Phase 3 — environment and documentation
 
-9. Create `server/.env.example`, `server/supabase/functions/.env.example`, and
+8. Create `server/.env.example`, `server/supabase/functions/.env.example`, and
    `server/README.md` (how to tunnel, how to deploy the database, how to deploy
-   functions, where the provider keys actually live, how to restore a backup).
-10. Recreate `server/.env.local` from the old repository's copy.
+   functions, and where the provider keys actually live).
+9. Recreate `server/.env.local` from the old repository's copy, retaining only
+   the values needed by the deployment and tunnel scripts.
 
 ### Phase 4 — verify against the live stack
 
@@ -369,32 +377,30 @@ See §6. Do not proceed past a failing check.
 
 ### Phase 5 — iOS client (separate work)
 
-11. Add `supabase-community/supabase-swift` via SPM beside GRDB. Build
+10. Add `supabase-community/supabase-swift` via SPM beside GRDB. Build
     `Infrastructure/Supabase/` (client plus anonymous sign-in, mirroring the old
     `ensureSession()`), `Infrastructure/Media/` (uploads keeping the
     `{auth.uid()}/filename` prefix the storage policies require), and the import
     adapter from `03-content-storage.md` §5.
-12. Add `Config/AppConfiguration.swift` and the xcconfig pair.
+11. Add `Config/AppConfiguration.swift` and the xcconfig pair.
 
 ### Phase 6 — retire the old repository
 
-13. Once a deploy from this repository has succeeded, archive
+12. Once a deploy from this repository has succeeded, archive
     `dreamproject-old` read-only so migrations cannot be pushed from two places.
 
 ## 6. Verification
 
-- `supabase migration list --db-url …` from this repository shows every
+- `supabase --workdir server migration list --db-url …` from this repository shows every
   migration applied on both sides and nothing pending. This single check proves
   the move was clean.
-- `supabase db diff --db-url … --schema public` returns empty: the declarative
+- `supabase --workdir server db diff --db-url … --schema public` returns empty: the declarative
   `schemas/` still matches the live database.
 - `mise run functions:check` passes.
 - `mise run functions:deploy` produces a new release id, `/hello` answers, every
   function passes its `OPTIONS` probe, and the previous release is retained.
 - One real call per function from a client using the anon key and an anonymous
   session.
-- `mise run db:backup` produces a complete backup from this repository's copy of
-  the script.
 - `git grep -iE 'aphe0c|hostinger|/etc/dokploy'` returns nothing.
 
 ## 7. Risks
@@ -424,7 +430,7 @@ Included: moving the Supabase project files and deployment tooling, folding the
 shared contracts into the functions, the environment and credential layout, the
 mise tasks, and the verification procedure.
 
-Deferred: any server-side schema change, the Supabase Swift client and import
+Deferred: backup tooling, any server-side schema change, the Supabase Swift client and import
 adapter (Phase 5, planned separately), continuous integration, and the web app's
 type generation.
 

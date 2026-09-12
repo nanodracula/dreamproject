@@ -11,3 +11,7 @@ run = "bash tools/run-ios.sh run"
 [tasks."ios:test"]
 description = "Test DreamApp on an explicit iOS Simulator destination"
 run = "bash tools/run-ios.sh test"
+
+[tasks."git:commit"]
+description = "Stage all changes and commit via Codex"
+run = "codex exec \"stage all changes and commit\" --config 'model_reasoning_effort=\"low\"' --dangerously-bypass-approvals-and-sandbox"
