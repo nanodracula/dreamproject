@@ -39,6 +39,17 @@ nonisolated struct SpeechSettings: Equatable, Sendable {
     var rate: Double = 0.8
     var pitch: Double = 1
     var volume: Double = 1
+    /// The phonetic layer is this language's spoken reading of an isolated
+    /// word, not a display aid. Sentences still speak their standard writing.
+    var speaksPhoneticWords = false
+}
+
+/// What the device synthesizer reads with. Distinct from `CloudVoice`, which
+/// selects the generation provider's voice; neither derives from the other.
+nonisolated struct SpokenVoice: Equatable, Sendable {
+    /// BCP-47 locale handed to the synthesizer, e.g. `ja-JP`.
+    var locale: String
+    var settings: SpeechSettings
 }
 
 nonisolated struct CloudVoice: Equatable, Sendable {
@@ -59,7 +70,7 @@ nonisolated extension LearningLanguage {
         code: "ja", contentLocale: "ja-JP",
         promptName: "Japanese", nativeName: "日本語", emoji: "🇯🇵",
         writing: WritingVariants(standard: "Kanji and kana", phonetic: "Hiragana", transliterated: "Romaji"),
-        speech: SpeechSettings(),
+        speech: SpeechSettings(speaksPhoneticWords: true),
         contentFontFamily: "Hiragino Sans",
         cloudVoice: CloudVoice(name: "japanese_female_fumi", languageCode: "ja")
     )
@@ -105,17 +116,40 @@ nonisolated extension LearningLanguage {
     )
 }
 
+nonisolated extension LearningLanguage {
+    /// Device speech for this language's content.
+    var deviceSpeech: SpokenVoice { SpokenVoice(locale: contentLocale, settings: speech) }
+
+    /// What the synthesizer reads for an isolated word. Japanese reads kana:
+    /// a kanji spelling on its own has several possible readings and no
+    /// context to choose between them. Sentences keep their standard writing,
+    /// which the synthesizer needs to parse the grammar. Zhuyin and
+    /// romanizations are display layers and are never spoken. Independent of
+    /// the user's writing display mode; audio generation uses the same text.
+    func spokenWord(_ standard: String, phonetic: String?) -> String {
+        guard speech.speaksPhoneticWords, let phonetic, !phonetic.isEmpty else { return standard }
+        return phonetic
+    }
+}
+
 /// A language the app's content is translated into.
 nonisolated struct NativeLanguage: Identifiable, Equatable, Sendable {
     let code: String
     let name: String
     let nativeName: String
     let emoji: String
+    /// BCP-47 locale for device speech of translations.
+    let voiceLocale: String
+    /// Read at full speed: this is the language the learner already knows.
+    var speech = SpeechSettings(rate: 1)
 
     var id: String { code }
+    var deviceSpeech: SpokenVoice { SpokenVoice(locale: voiceLocale, settings: speech) }
 
     static let all = [english]
-    static let english = NativeLanguage(code: "en", name: "English", nativeName: "English", emoji: "🇬🇧")
+    static let english = NativeLanguage(
+        code: "en", name: "English", nativeName: "English", emoji: "🇬🇧", voiceLocale: "en-US"
+    )
 }
 
 // MARK: - Writing display modes

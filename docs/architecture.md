@@ -1,210 +1,44 @@
 # iOS app architecture
 
-Rules for `apps/ios/DreamApp/`. Folders exist only when they have content.
+## Organization
 
-## Files
-
-- One file per domain concept, not per type. Sub-types and enums live with the type that owns them (`SentenceBreakdown` in `Sentence.swift`, `KnowledgeLevel` in `UserSettings.swift`).
-- Files are never split by size. Long files are fine. Split only when a file holds two concepts that change for different reasons.
+- Organize files by domain concept, not by type or size. Split only when concepts change for different reasons.
+- Keep feature-specific code within its feature.
+- Create folders and abstractions only when needed.
 
 ## Layers
 
-- `App/`: entry point, `AppDependencies` (composition root), `RootView`, navigation. Only place that wires features together.
-- `Features/<Name>/`: `UI/` always; `Logic/` and `Data/` only when needed (see below).
-- `Core/`: shared models and contracts. Plain Swift, imports Foundation only. No GRDB, SwiftUI, or feature code.
-- `Core/Contracts/` holds only shared protocols for process or hardware boundaries. Repositories over SQLite have no protocol.
-- `Infrastructure/`: GRDB record extensions, migrations, shared repositories, Supabase, sync, media cache, SDK wrappers (audio, speech, keychain, notifications).
-- `SharedUI/`: reusable domain views. Depend on Core, receive services by injection.
-- `DesignSystem/`: generic components and visual tokens.
-- A feature may keep one theme file of its own, holding the colors and visual constants only that feature draws. Put shared tokens in `DesignSystem/` and keep it to a single file per feature.
-- Tests live in `apps/ios/DreamAppTests/`, mirroring `Features/`, `Core/`, `Infrastructure/`.
+- **App** owns application setup, shared dependencies, and navigation between features.
+- **Features** own their UI, presentation state, business logic, and feature-specific data access.
+- **Core** contains shared domain models, pure business rules, and contracts. It remains independent of UI, persistence, and external SDKs.
+- **Infrastructure** implements persistence, networking, and platform integrations.
+- **SharedUI** contains reusable domain views.
+- **DesignSystem** contains generic UI components and shared visual styles.
 
-Dependency direction: `App` → `Features` → `Infrastructure` / `SharedUI` → `Core`.
-Shared layers never depend on features. Features never depend on each other.
+App assembles features and shared dependencies. Features may use shared layers but never depend on each other. Shared layers never depend on features.
 
-## UI
+## UI and business logic
 
-- Views render and forward actions. Views never touch a database, HTTP client, or SDK.
-- View models are `@MainActor @Observable`, own presentation state, and call repositories directly.
-- A `Logic/` service exists only when there are real business rules (review scheduling, feed composition). No pass-through services. Name it after the rule it owns (`FeedComposition`), not `XService`.
-- Keep blocking I/O and heavy processing off the main actor. `async` alone does not move work off it.
+- Views render state and forward user actions. Keep persistence, networking, and substantial platform integration outside views.
+- View models own presentation state and coordinate operations through repositories and services.
+- Add a business logic service only when it owns meaningful rules. Avoid pass-through layers.
+- Keep blocking I/O and heavy processing off the main thread.
 
-## Models and GRDB (decision: option B)
+## Data access
 
-- Core models are plain `Codable` structs: no `import GRDB`, no `CodingKeys` for column names, no `Columns`.
-- GRDB conformance lives in `Infrastructure/Database/Records/<Domain>Records.swift` (`ContentRecords`, `SettingsRecords`): `FetchableRecord`, `PersistableRecord`, `databaseTableName`, snake_case column strategies, `Columns`, reusable request builders, and `DatabaseValueConvertible` for the domain's enums.
-- Extensions in Infrastructure are `nonisolated`. The project defaults to main-actor isolation, and GRDB conformances must not be actor-isolated.
-- No separate record types or mappers.
-- Language codes are strings in the database. `LearningLanguage` in Core is a config value listing supported languages, never a column type.
+- Keep domain models independent of storage details. Persistence behavior belongs in Infrastructure.
+- Prefer shared domain and persistence models when their shapes align. Use separate models when the differences justify them.
+- Repositories and feature-specific data access code own queries and writes.
+- Prefer database observation for UI backed by local persistence. Avoid maintaining a second source of truth.
 
-```swift
-extension Sentence: FetchableRecord, PersistableRecord {
-    static let databaseTableName = "sentences"
-    static let databaseColumnDecodingStrategy = DatabaseColumnDecodingStrategy.convertFromSnakeCase
-    static let databaseColumnEncodingStrategy = DatabaseColumnEncodingStrategy.convertToSnakeCase
-    enum Columns { static let lang = Column("lang") }
-    static func active(lang: String) -> QueryInterfaceRequest<Sentence> { filter(Columns.lang == lang) }
-}
-```
+## Dependencies and contracts
 
-## Queries and repositories
+- Inject dependencies explicitly. Avoid global singletons.
+- App owns shared dependencies; features assemble their own internal objects.
+- Prefer concrete types. Introduce protocols when consumers benefit from interchangeable implementations or separation from external systems.
+- Keep feature-local contracts within the feature. Put contracts needed across layers in a shared layer that preserves dependency direction.
 
-- Column names are defined once, in `Columns` inside the record extension. Repositories and feature queries use `Model.Columns.x`; never `Column("x")` string literals. Migrations and raw SQL use schema names directly.
-- Frequently reused predicates (active rows, favorites) are request builders on the record extension. One-off filters and sorts are composed inline.
-- Shared repositories (used by 2+ features) are concrete structs in `Infrastructure/Repositories/`, hold `AppDatabase`, and expose one-shot fetches, `ValueObservation` streams, and writes.
-- Feature-only queries live in `Features/<Name>/Data/` (for example `FeedQueries`). Move to Infrastructure when a second feature needs them.
-- `Data/` also holds request/response payloads and mappers for endpoints only that feature calls. `Data/` may import GRDB and networking; `UI/` and `Logic/` may not.
+## Complexity
 
-## Protocols
-
-- Introduce a protocol when a consumer needs a controllable substitute in tests or previews. Typical cases: Supabase/HTTP, audio, speech, keychain, notifications, clock. Decide up front for hardware and network; retrofitting is cheap but tedious.
-- SQLite repositories stay concrete, injected with `AppDatabase`; the in-memory database is their substitute.
-- Feature-specific contracts live with the feature. `Core/Contracts/` holds only shared ones.
-
-## Live UI data
-
-- Production opens a `DatabasePool`; tests use an in-memory `DatabaseQueue`.
-- Screens observe via repository `ValueObservation` streams consumed in `.task` / `.task(id:)`. Writes go through the repository; no manual reloads.
-- No in-memory stores mirroring the database, no event buses, no hand-rolled change listeners. Observation and `Task` cancellation cover these.
-- Do not use the GRDBQuery package. `@Query` puts database access in views.
-
-## Dependencies
-
-- `AppDependencies` owns the database, shared repositories, and platform services. Features assemble their own view models and queries from those. `App/` owns navigation between features.
-- No module-level singletons.
-- Start with folders. Extract `Core`, `Infrastructure`, and `DesignSystem` into local packages only when compiler-enforced boundaries solve an actual problem. It is a separate refactor: public access control, explicit public initializers, `@retroactive` GRDB conformances, test target split. The cost grows with code size, so decide early if you want it at all.
-
-## Project root
-
-```text
-DreamProject/
-├── apps/
-│   └── ios/
-├── server/
-│   └── supabase/
-├── docs/
-├── tools/
-└── README.md
-```
-
-## iOS app
-
-Folders marked `(planned)` do not exist yet.
-
-```text
-apps/ios/DreamApp/
-├── App/
-│   ├── DreamApp.swift
-│   ├── AppDependencies.swift
-│   ├── RootView.swift
-│   └── Navigation/
-│       ├── AppRoute.swift
-│       └── AppRouter.swift
-│
-├── Features/
-│   ├── Feed/
-│   │   ├── UI/
-│   │   │   ├── FeedScreen.swift
-│   │   │   ├── FeedViewModel.swift
-│   │   │   └── Components/
-│   │   ├── Logic/
-│   │   │   └── FeedComposition.swift
-│   │   └── Data/
-│   │       └── FeedQueries.swift
-│   ├── Dictionary/
-│   ├── AddCard/
-│   │   ├── UI/
-│   │   └── Data/
-│   │       └── CardTitleGeneration.swift   // edge-function payloads + mapper
-│   ├── Settings/
-│   │   └── UI/
-│   └── Auth/                                (planned)
-│
-├── Core/
-│   ├── Models/
-│   │   ├── Word.swift                      // + PartOfSpeech, FrequencyRank
-│   │   ├── Sentence.swift                  // + SentenceType, SentenceBreakdown
-│   │   ├── ContentMedia.swift              // + MediaOrigin, AudioPace
-│   │   ├── UserSettings.swift              // + UserLearningLanguageSettings and its enums
-│   │   ├── Deck.swift
-│   │   ├── ReviewProgress.swift
-│   │   └── LearningLanguage.swift          // supported languages config, not a column type
-│   ├── Contracts/
-│   │   ├── AudioPlaying.swift
-│   │   ├── SpeechSynthesizing.swift
-│   │   ├── SyncClient.swift
-│   │   └── Clock.swift
-│   └── Learning/
-│       └── ReviewScheduler.swift           // shared pure rules only
-│
-├── SharedUI/
-│   ├── SentencePreview.swift
-│   ├── SentencePlayer.swift
-│   └── WordPronunciation.swift
-│
-├── DesignSystem/
-│   ├── Components/
-│   └── Theme/
-│       ├── Colors.swift
-│       ├── Typography.swift
-│       ├── Spacing.swift
-│       └── Motion.swift
-│
-├── Infrastructure/
-│   ├── Preferences/
-│   │   └── DeviceSettings.swift            // UserDefaults wrapper
-│   ├── Database/
-│   │   ├── AppDatabase.swift
-│   │   ├── Migrations/
-│   │   │   └── AppDatabase+Migrations.swift
-│   │   └── Records/
-│   │       ├── ContentRecords.swift
-│   │       └── SettingsRecords.swift
-│   ├── Repositories/
-│   │   ├── WordRepository.swift
-│   │   ├── SentenceRepository.swift
-│   │   └── SettingsRepository.swift
-│   ├── Supabase/
-│   │   └── SupabaseSession.swift           // client factory + anonymous session
-│   ├── Sync/
-│   ├── Media/
-│   │   └── MediaUploader.swift             // ugc-* uploads under {uid}/
-│   ├── Audio/
-│   ├── Speech/
-│   ├── Keychain/                            (planned)
-│   └── Notifications/                       (planned)
-│
-├── Config/
-│   ├── AppConfiguration.swift              // reads the substituted Info.plist values
-│   ├── Info.plist
-│   ├── Dev.xcconfig                        // base configuration of Debug
-│   └── Prod.xcconfig                       // base configuration of Release
-│
-└── Resources/
-    ├── Assets.xcassets
-    └── Localization/
-        ├── Dictionary.xcstrings
-        └── Settings.xcstrings
-
-apps/ios/DreamAppTests/
-├── Features/
-├── Core/
-└── Infrastructure/
-```
-
-## Feature folder
-
-```text
-Feed/
-├── UI/
-│   ├── FeedScreen.swift
-│   ├── FeedViewModel.swift
-│   └── Components/
-│       ├── FeedCard.swift
-│       ├── GrammarSection.swift
-│       └── TranslationSection.swift
-├── Logic/
-│   └── FeedComposition.swift
-└── Data/
-    └── FeedQueries.swift
-```
+- Prefer direct calls until an abstraction solves an actual problem.
+- Start with folder boundaries. Extract modules or packages when compiler-enforced separation provides a clear benefit.

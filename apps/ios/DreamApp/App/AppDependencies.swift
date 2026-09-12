@@ -12,6 +12,8 @@ final class AppDependencies {
     let supabase: SupabaseClient
     let supabaseSession: SupabaseSession
     let mediaUploader: MediaUploader
+    let mediaCache: MediaCache
+    let pronunciation: Pronunciation
 
     init(
         database: AppDatabase,
@@ -23,6 +25,8 @@ final class AppDependencies {
         self.supabase = supabase
         supabaseSession = SupabaseSession(auth: supabase.auth)
         mediaUploader = MediaUploader(supabase: supabase, session: supabaseSession)
+        mediaCache = MediaCache(supabase: supabase)
+        pronunciation = Pronunciation(cache: mediaCache)
     }
 
     /// Opens the persistent database and wires production services.
