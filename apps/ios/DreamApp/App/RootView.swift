@@ -1,18 +1,13 @@
 import SwiftUI
 
-/// Hosts the destinations behind the floating glass navigation. Every
-/// destination keeps its own `NavigationStack` and stays alive while hidden,
-/// so switching back restores its state.
+/// Hosts a navigation stack per tab, with a custom glass bar in the bottom safe area.
 struct RootView: View {
-    @Environment(AppDependencies.self) private var dependencies
     @State private var selectedDestination: AppDestination = .dictionary
 
     var body: some View {
-        GeometryReader { proxy in
-            let safeAreaBottom = proxy.safeAreaInsets.bottom
-            ZStack {
-                ForEach(AppDestination.allCases, id: \.self) { destination in
-                    let isSelected = destination == selectedDestination
+        TabView(selection: $selectedDestination) {
+            ForEach(AppDestination.allCases, id: \.self) { destination in
+                Tab(value: destination) {
                     NavigationStack {
                         if destination == .settings {
                             SettingsView()
@@ -20,17 +15,19 @@ struct RootView: View {
                             PlaceholderView(destination: destination)
                         }
                     }
-                    .zIndex(isSelected ? 1 : 0)
-                    .allowsHitTesting(isSelected)
-                    .accessibilityHidden(!isSelected)
+                    .toolbarVisibility(.hidden, for: .tabBar)
+                } label: {
+                    Label {
+                        Text(destination.title)
+                    } icon: {
+                        Image(systemName: destination.symbol)
+                    }
                 }
             }
-            .safeAreaPadding(.bottom, GlassNavigationMetrics.contentInset(safeAreaBottom: safeAreaBottom))
-            .overlay(alignment: .bottom) {
-                GlassNavigation(items: AppDestination.allCases, selection: $selectedDestination)
-                    .padding(.horizontal, GlassNavigationMetrics.sideInset)
-                    .padding(.bottom, GlassNavigationMetrics.bottomOffset(safeAreaBottom: safeAreaBottom) - safeAreaBottom)
-            }
+        }
+        .safeAreaInset(edge: .bottom, spacing: GlassNavigationMetrics.contentGap) {
+            GlassNavigation(items: AppDestination.allCases, selection: $selectedDestination)
+                .padding(.horizontal, GlassNavigationMetrics.sideInset)
         }
         .background(AppColors.background)
         .preferredColorScheme(.dark)

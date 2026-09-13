@@ -14,22 +14,8 @@ enum GlassNavigationMetrics {
     static let height: CGFloat = 58
     /// Horizontal distance from the screen edges.
     static let sideInset: CGFloat = 32
-    /// How far the bar sinks into the bottom safe area.
-    static let bottomDip: CGFloat = 12
-    /// Minimum distance from the screen bottom when there is no safe area.
-    static let minimumBottomInset: CGFloat = 8
     /// Gap kept between content and the top of the bar.
     static let contentGap: CGFloat = 4
-
-    /// Distance from the screen bottom to the bar's bottom edge.
-    static func bottomOffset(safeAreaBottom: CGFloat) -> CGFloat {
-        max(safeAreaBottom - bottomDip, minimumBottomInset)
-    }
-
-    /// Extra bottom safe area screens need so their controls stay clear of the bar.
-    static func contentInset(safeAreaBottom: CGFloat) -> CGFloat {
-        bottomOffset(safeAreaBottom: safeAreaBottom) + height + contentGap - safeAreaBottom
-    }
 }
 
 /// A floating Liquid Glass capsule with icon-only destinations. Selection is shown by a
