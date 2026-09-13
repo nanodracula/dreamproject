@@ -8,6 +8,7 @@ enum SettingsRoute: Hashable {
 /// The settings index: a native inset-grouped list. In dark mode the system
 /// grouped palette matches the old app's values exactly, so no colors are set.
 struct SettingsView: View {
+    @Environment(AppDependencies.self) private var dependencies
     // Visual placeholders until settings are read from the database.
     @State private var activeLanguage = LearningLanguage.japanese.code
     @State private var enrolled = [LearningLanguage.japanese, .korean]
@@ -80,7 +81,7 @@ struct SettingsView: View {
             case .learning: LearningSettingsView()
             case .languages: LanguagesSettingsView()
             case .sync: SyncSettingsView()
-            case .dev: DevView()
+            case .dev: DevView(database: dependencies.database)
             case .terminal: TerminalView()
             }
         }
@@ -136,5 +137,6 @@ private struct SettingsRowLabelStyle: LabelStyle {
     NavigationStack {
         SettingsView()
     }
+    .environment(AppDependencies(database: try! AppDatabase.openInMemory()))
     .preferredColorScheme(.dark)
 }
