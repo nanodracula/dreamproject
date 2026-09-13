@@ -2,10 +2,10 @@ import SwiftUI
 
 /// Enroll in and drop learning languages. Turning a language on also makes
 /// it active; the active one cannot be turned off, which also keeps at least
-/// one language enrolled.
+/// one language enrolled. A dropped language keeps its preferences for when
+/// it is turned on again.
 struct LanguagesSettingsView: View {
-    @Binding var enrolled: [LearningLanguage]
-    @Binding var activeLanguage: String
+    @Environment(SettingsModel.self) private var settings
 
     var body: some View {
         List {
@@ -14,7 +14,7 @@ struct LanguagesSettingsView: View {
                     Toggle(isOn: enrollment(of: language)) {
                         Text("\(language.emoji) \(language.nativeName)")
                     }
-                    .disabled(language.code == activeLanguage)
+                    .disabled(!settings.canEdit || language.code == settings.activeLanguageCode)
                 }
             } footer: {
                 Text("languagesDescription", tableName: "Settings")
@@ -23,19 +23,21 @@ struct LanguagesSettingsView: View {
         .listStyle(.insetGrouped)
         .navigationTitle(Text("languagesTitle", tableName: "Settings"))
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSaveErrorAlert()
     }
 
+    /// Toggling saves; the switch settles once the change is committed.
     private func enrollment(of language: LearningLanguage) -> Binding<Bool> {
         Binding(
-            get: { enrolled.contains(language) },
+            get: { settings.isEnrolled(language.code) },
             set: { isOn in
-                if isOn {
-                    if !enrolled.contains(language) {
-                        enrolled.append(language)
+                guard isOn != settings.isEnrolled(language.code) else { return }
+                Task {
+                    if isOn {
+                        await settings.enroll(language.code)
+                    } else {
+                        await settings.remove(language.code)
                     }
-                    activeLanguage = language.code
-                } else {
-                    enrolled.removeAll { $0.code == language.code }
                 }
             }
         )
@@ -43,11 +45,9 @@ struct LanguagesSettingsView: View {
 }
 
 #Preview {
-    @Previewable @State var enrolled = [LearningLanguage.japanese, .korean]
-    @Previewable @State var activeLanguage = LearningLanguage.japanese.code
-
     NavigationStack {
-        LanguagesSettingsView(enrolled: $enrolled, activeLanguage: $activeLanguage)
+        LanguagesSettingsView()
     }
+    .previewDependencies()
     .preferredColorScheme(.dark)
 }

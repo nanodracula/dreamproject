@@ -1,54 +1,93 @@
 import SwiftUI
 
-/// Settings of the active learning language.
+/// Settings of one enrolled learning language.
 struct LearningSettingsView: View {
-    let language: LearningLanguage
-    @State private var knowledgeLevel = KnowledgeLevel.beginner
-    @State private var writingDisplayMode = WritingDisplayMode.standardOnly
+    let languageCode: String
+    @Environment(SettingsModel.self) private var settings
+
+    private var language: LearningLanguage? { LearningLanguage.with(code: languageCode) }
 
     var body: some View {
         List {
-            Section {
-                Picker(selection: $knowledgeLevel) {
-                    Text("knowledgeLevelBeginner", tableName: "Settings").tag(KnowledgeLevel.beginner)
-                    Text("knowledgeLevelIntermediate", tableName: "Settings").tag(KnowledgeLevel.intermediate)
-                    Text("knowledgeLevelAdvanced", tableName: "Settings").tag(KnowledgeLevel.advanced)
-                } label: {
-                    Text("knowledgeLevelLabel", tableName: "Settings")
-                }
-                .pickerStyle(.menu)
-            }
-
-            // A language with no reading aids has nothing to choose.
-            if language.availableWritingDisplayModes.count > 1 {
+            if let language, let enrollment = settings.enrollment(for: languageCode) {
                 Section {
-                    Picker(selection: $writingDisplayMode) {
-                        ForEach(language.availableWritingDisplayModes, id: \.self) { mode in
-                            Text(modeLabel(mode)).tag(mode)
-                        }
+                    Picker(selection: knowledgeLevel(of: enrollment)) {
+                        Text("knowledgeLevelBeginner", tableName: "Settings").tag(KnowledgeLevel.beginner)
+                        Text("knowledgeLevelIntermediate", tableName: "Settings").tag(KnowledgeLevel.intermediate)
+                        Text("knowledgeLevelAdvanced", tableName: "Settings").tag(KnowledgeLevel.advanced)
                     } label: {
-                        Text("writingDisplayModeLabel", tableName: "Settings")
+                        Text("knowledgeLevelLabel", tableName: "Settings")
                     }
-                    .pickerStyle(.inline)
-                    .labelsHidden()
-                } header: {
-                    Text("writingDisplayModeLabel", tableName: "Settings")
-                } footer: {
-                    Text("writingDisplayModeDescription", tableName: "Settings")
+                    .pickerStyle(.menu)
+                    .disabled(!settings.canEdit)
                 }
+
+                // A language with no reading aids has nothing to choose.
+                if language.availableWritingDisplayModes.count > 1 {
+                    Section {
+                        Picker(selection: writingDisplayMode(of: enrollment, in: language)) {
+                            ForEach(language.availableWritingDisplayModes, id: \.self) { mode in
+                                Text(modeLabel(mode, in: language)).tag(mode)
+                            }
+                        } label: {
+                            Text("writingDisplayModeLabel", tableName: "Settings")
+                        }
+                        .pickerStyle(.inline)
+                        .labelsHidden()
+                        .disabled(!settings.canEdit)
+                    } header: {
+                        Text("writingDisplayModeLabel", tableName: "Settings")
+                    } footer: {
+                        Text("writingDisplayModeDescription", tableName: "Settings")
+                    }
+                }
+            } else if settings.isLoaded {
+                // Unsupported or not enrolled: no saved values to show.
+                Text("learningNotEnrolled", tableName: "Settings")
+                    .foregroundStyle(.secondary)
             }
         }
         .listStyle(.insetGrouped)
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
+        .settingsSaveErrorAlert()
     }
 
     private var title: String {
-        String(format: NSLocalizedString("learningTitle", tableName: "Settings", comment: ""), language.nativeName)
+        String(
+            format: NSLocalizedString("learningTitle", tableName: "Settings", comment: ""),
+            language?.nativeName ?? languageCode
+        )
+    }
+
+    // Selecting saves; the picker moves once the change is committed.
+
+    private func knowledgeLevel(of enrollment: UserLearningLanguageSettings) -> Binding<KnowledgeLevel> {
+        Binding(
+            get: { enrollment.knowledgeLevel },
+            set: { level in
+                guard level != enrollment.knowledgeLevel else { return }
+                Task { await settings.setKnowledgeLevel(level, for: languageCode) }
+            }
+        )
+    }
+
+    /// Shows the saved mode reduced to the language's layers; saves the
+    /// chosen mode as is.
+    private func writingDisplayMode(
+        of enrollment: UserLearningLanguageSettings, in language: LearningLanguage
+    ) -> Binding<WritingDisplayMode> {
+        Binding(
+            get: { language.normalized(enrollment.writingDisplayMode) },
+            set: { mode in
+                guard mode != enrollment.writingDisplayMode else { return }
+                Task { await settings.setWritingDisplayMode(mode, for: languageCode) }
+            }
+        )
     }
 
     /// Per-language layer labels joined, never a translated phrase per combination.
-    private func modeLabel(_ mode: WritingDisplayMode) -> String {
+    private func modeLabel(_ mode: WritingDisplayMode, in language: LearningLanguage) -> String {
         mode.layers.map { layer in
             switch layer {
             case .standard: language.writingLayerLabel(.standard)
@@ -84,7 +123,8 @@ extension LearningLanguage {
 
 #Preview {
     NavigationStack {
-        LearningSettingsView(language: .japanese)
+        LearningSettingsView(languageCode: "ja")
     }
+    .previewDependencies()
     .preferredColorScheme(.dark)
 }

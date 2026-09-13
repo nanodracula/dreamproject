@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Hosts a navigation stack per tab, with a custom glass bar in the bottom safe area.
 struct RootView: View {
+    @Environment(SettingsModel.self) private var settings
     @State private var selectedDestination: AppDestination = .dictionary
 
     var body: some View {
@@ -31,6 +32,8 @@ struct RootView: View {
         }
         .background(AppColors.background)
         .preferredColorScheme(.dark)
+        // Observation lives as long as the root; a retry restarts it.
+        .task(id: settings.observationRun) { await settings.observe() }
     }
 }
 
@@ -56,5 +59,5 @@ private struct PlaceholderView: View {
 
 #Preview {
     RootView()
-        .environment(AppDependencies(database: try! AppDatabase.openInMemory()))
+        .previewDependencies()
 }

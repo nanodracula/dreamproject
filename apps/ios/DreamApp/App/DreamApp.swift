@@ -16,6 +16,7 @@ struct DreamApp: App {
         WindowGroup {
             RootView()
                 .environment(dependencies)
+                .environment(dependencies.settings)
         }
     }
 }

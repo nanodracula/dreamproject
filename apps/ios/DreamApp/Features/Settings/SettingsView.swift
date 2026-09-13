@@ -2,35 +2,53 @@ import SwiftUI
 
 /// Screens reachable from the settings index.
 enum SettingsRoute: Hashable {
-    case general, interface, learning, languages, sync, dev, terminal
+    case general, interface, learning(languageCode: String), languages, sync, dev, terminal
 }
 
 /// The settings index: a native inset-grouped list. In dark mode the system
 /// grouped palette matches the old app's values exactly, so no colors are set.
 struct SettingsView: View {
     @Environment(AppDependencies.self) private var dependencies
-    // Shared by the settings screens until account settings are connected to the database.
-    @State private var activeLanguage = LearningLanguage.japanese.code
-    @State private var enrolled = [LearningLanguage.japanese, .korean]
+    @Environment(SettingsModel.self) private var settings
 
-    private var canAdd: Bool { enrolled.count < LearningLanguage.all.count }
+    private var canAdd: Bool { settings.enrolledLanguages.count < LearningLanguage.all.count }
 
     var body: some View {
         List {
-            Section {
-                Picker(selection: $activeLanguage) {
-                    ForEach(enrolled) { language in
-                        Text("\(language.emoji) \(language.nativeName)").tag(language.code)
+            if let loadError = settings.loadError {
+                Section {
+                    Text(loadError.localizedDescription)
+                    Button {
+                        settings.retryObservation()
+                    } label: {
+                        Text("loadErrorRetry", tableName: "Settings")
                     }
-                } label: {
-                    Text("learningLanguageLabel", tableName: "Settings")
+                } header: {
+                    Text("loadErrorTitle", tableName: "Settings")
                 }
-                .pickerStyle(.inline)
-                .labelsHidden()
+            }
+
+            Section {
+                if settings.isLoaded {
+                    Picker(selection: activeLanguageSelection) {
+                        ForEach(settings.enrolledLanguages) { language in
+                            Text("\(language.emoji) \(language.nativeName)").tag(Optional(language.code))
+                        }
+                    } label: {
+                        Text("learningLanguageLabel", tableName: "Settings")
+                    }
+                    .pickerStyle(.inline)
+                    .labelsHidden()
+                    .disabled(!settings.canEdit)
+                } else if settings.loadError == nil {
+                    ProgressView()
+                        .frame(maxWidth: .infinity)
+                }
 
                 NavigationLink(value: SettingsRoute.languages) {
                     Text(canAdd ? "languagesAdd" : "languagesManage", tableName: "Settings")
                 }
+                .disabled(!settings.isLoaded)
             } header: {
                 Text("learningLanguageLabel", tableName: "Settings")
             }
@@ -46,12 +64,17 @@ struct SettingsView: View {
                 NavigationLink(value: SettingsRoute.interface) {
                     SettingsIconLabel("itemsInterface", symbol: "paintbrush.fill", tint: 0x5AC8FA, symbolSize: 16)
                 }
-                NavigationLink(value: SettingsRoute.learning) {
-                    LabeledContent {
-                        Text(LearningLanguage.with(code: activeLanguage)?.nativeName ?? "")
-                    } label: {
-                        SettingsIconLabel("itemsLearning", symbol: "graduationcap.fill", tint: 0x3478F6, symbolSize: 15)
+                // An unsupported active language has no learning screen.
+                if let language = settings.activeLanguage {
+                    NavigationLink(value: SettingsRoute.learning(languageCode: language.code)) {
+                        LabeledContent {
+                            Text(language.nativeName)
+                        } label: {
+                            SettingsIconLabel("itemsLearning", symbol: "graduationcap.fill", tint: 0x3478F6, symbolSize: 15)
+                        }
                     }
+                } else {
+                    SettingsIconLabel("itemsLearning", symbol: "graduationcap.fill", tint: 0x3478F6, symbolSize: 15)
                 }
                 NavigationLink(value: SettingsRoute.sync) {
                     SettingsIconLabel("itemsSync", symbol: "externaldrive.fill", tint: 0x34C759)
@@ -80,12 +103,8 @@ struct SettingsView: View {
             switch route {
             case .general: GeneralSettingsView()
             case .interface: InterfaceSettingsView()
-            case .learning:
-                if let language = LearningLanguage.with(code: activeLanguage) {
-                    LearningSettingsView(language: language)
-                }
-            case .languages:
-                LanguagesSettingsView(enrolled: $enrolled, activeLanguage: $activeLanguage)
+            case .learning(let languageCode): LearningSettingsView(languageCode: languageCode)
+            case .languages: LanguagesSettingsView()
             case .sync: SyncSettingsView()
             case .dev: DevView(database: dependencies.database)
             case .terminal: TerminalView()
@@ -93,6 +112,45 @@ struct SettingsView: View {
         }
         // Declared outside `navigationDestination`, so every pushed screen inherits it.
         .scrollIndicators(.hidden)
+        .settingsSaveErrorAlert()
+    }
+
+    /// Selecting saves; the picker moves once the change is committed.
+    private var activeLanguageSelection: Binding<String?> {
+        Binding(
+            get: { settings.activeLanguageCode },
+            set: { code in
+                guard let code, code != settings.activeLanguageCode else { return }
+                Task { await settings.setActiveLanguage(code) }
+            }
+        )
+    }
+}
+
+extension View {
+    /// Presents the last failed settings save as a dismissible alert. Attach
+    /// to every screen that edits settings, since alerts present only from
+    /// the visible screen.
+    func settingsSaveErrorAlert() -> some View {
+        modifier(SettingsSaveErrorAlert())
+    }
+}
+
+private struct SettingsSaveErrorAlert: ViewModifier {
+    @Environment(SettingsModel.self) private var settings
+
+    func body(content: Content) -> some View {
+        content.alert(
+            Text("saveErrorTitle", tableName: "Settings"),
+            isPresented: Binding(
+                get: { settings.saveError != nil },
+                set: { if !$0 { settings.saveError = nil } }
+            ),
+            presenting: settings.saveError
+        ) { _ in
+        } message: { message in
+            Text(message)
+        }
     }
 }
 
@@ -145,6 +203,6 @@ private struct SettingsRowLabelStyle: LabelStyle {
     NavigationStack {
         SettingsView()
     }
-    .environment(AppDependencies(database: try! AppDatabase.openInMemory()))
+    .previewDependencies()
     .preferredColorScheme(.dark)
 }

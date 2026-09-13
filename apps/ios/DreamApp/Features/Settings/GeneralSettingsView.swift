@@ -1,11 +1,18 @@
 import SwiftUI
 
 struct GeneralSettingsView: View {
+    @Environment(SettingsModel.self) private var settings
+
     var body: some View {
         List {
-            // Picked at onboarding. English only for now, so the row is informational.
+            // Picked at onboarding. English only for now, so the row is
+            // informational. An unsupported saved code shows as is.
             LabeledContent {
-                Text("\(NativeLanguage.english.emoji) \(NativeLanguage.english.name)")
+                if let language = settings.nativeLanguage {
+                    Text("\(language.emoji) \(language.name)")
+                } else {
+                    Text(settings.nativeLanguageCode ?? "")
+                }
             } label: {
                 Text("generalNativeLanguage", tableName: "Settings")
             }
@@ -20,5 +27,6 @@ struct GeneralSettingsView: View {
     NavigationStack {
         GeneralSettingsView()
     }
+    .previewDependencies()
     .preferredColorScheme(.dark)
 }
