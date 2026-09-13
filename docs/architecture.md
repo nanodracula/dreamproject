@@ -3,7 +3,7 @@
 ## Organization
 
 - Organize files by domain concept, not by type or size. Keep feature-specific code within its feature.
-- Add folders and abstractions only when they solve an actual problem.
+- Add abstractions only when they solve an actual problem.
 - Start with folder boundaries. Extract modules or packages when compiler-enforced separation provides a clear benefit.
 
 ## Layers

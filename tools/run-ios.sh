@@ -43,8 +43,22 @@ case "$action" in
     xcrun simctl launch --terminate-running-process "$simulator" "$bundle_id"
     ;;
 
+  run-device)
+    device="${IOS_DEVICE_NAME:-iPhone Pro (Vlad)}"
+    derived_data="$HOME/Library/Developer/Xcode/DerivedData/DreamApp-Device"
+
+    xcode -destination "platform=iOS,name=$device" \
+      -derivedDataPath "$derived_data" \
+      -allowProvisioningUpdates build
+
+    app="$derived_data/Build/Products/Debug-iphoneos/DreamApp.app"
+    bundle_id=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
+    xcrun devicectl device install app --device "$device" "$app"
+    xcrun devicectl device process launch --device "$device" --terminate-existing "$bundle_id"
+    ;;
+
   *)
-    echo "Usage: bash tools/run-ios.sh build|test|run" >&2
+    echo "Usage: bash tools/run-ios.sh build|test|run|run-device" >&2
     exit 2
     ;;
 esac

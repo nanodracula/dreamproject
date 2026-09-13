@@ -14,6 +14,10 @@ run = "bash tools/run-ios.sh build"
 description = "Build and launch DreamApp in iOS Simulator"
 run = "bash tools/run-ios.sh run"
 
+[tasks."ios:run-device"]
+description = "Build and launch DreamApp on the connected iPhone"
+run = "bash tools/run-ios.sh run-device"
+
 [tasks."ios:test"]
 description = "Test DreamApp on an explicit iOS Simulator destination"
 run = "bash tools/run-ios.sh test"

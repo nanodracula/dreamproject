@@ -17,7 +17,7 @@ struct RootView: View {
                         if destination == .settings {
                             SettingsView()
                         } else {
-                            PlaceholderScreen(destination: destination)
+                            PlaceholderView(destination: destination)
                         }
                     }
                     .zIndex(isSelected ? 1 : 0)
@@ -38,7 +38,7 @@ struct RootView: View {
 }
 
 /// Stands in for a feature screen until it is implemented.
-private struct PlaceholderScreen: View {
+private struct PlaceholderView: View {
     let destination: AppDestination
 
     var body: some View {
