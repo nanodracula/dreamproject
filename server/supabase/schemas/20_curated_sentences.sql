@@ -1,4 +1,4 @@
-create table public.sentences (
+create table public.curated_sentences (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -20,24 +20,24 @@ create table public.sentences (
     default '{"schemaVersion":1,"items":[]}'::jsonb,
   metadata jsonb not null default '{}'::jsonb,
 
-  constraint sentences_metadata_is_object
+  constraint curated_sentences_metadata_is_object
     check (jsonb_typeof(metadata) = 'object')
 );
 
-alter table public.sentences enable row level security;
+alter table public.curated_sentences enable row level security;
 
-revoke all on table public.sentences from anon, authenticated;
-grant select on table public.sentences to anon, authenticated;
-grant all on table public.sentences to service_role;
+revoke all on table public.curated_sentences from anon, authenticated;
+grant select on table public.curated_sentences to anon, authenticated;
+grant all on table public.curated_sentences to service_role;
 
-create policy "Published sentences are publicly readable"
-on public.sentences
+create policy "Published curated sentences are publicly readable"
+on public.curated_sentences
 for select
 to anon, authenticated
 using (status = 'published');
 
-comment on table public.sentences is
-  'Phrases, complete sentences, and questions used as learning content.';
+comment on table public.curated_sentences is
+  'Curated phrases, complete sentences, and questions used as learning content.';
 
-comment on column public.sentences.sentence_type is
+comment on column public.curated_sentences.sentence_type is
   'Classified as question when interrogative, sentence when complete, otherwise phrase.';

@@ -1,4 +1,4 @@
-create table public.words (
+create table public.curated_words (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -22,24 +22,24 @@ create table public.words (
   sentence_ids uuid[] not null default '{}'::uuid[],
   metadata jsonb not null default '{}'::jsonb,
 
-  constraint words_metadata_is_object
+  constraint curated_words_metadata_is_object
     check (jsonb_typeof(metadata) = 'object')
 );
 
-alter table public.words enable row level security;
+alter table public.curated_words enable row level security;
 
-revoke all on table public.words from anon, authenticated;
-grant select on table public.words to anon, authenticated;
-grant all on table public.words to service_role;
+revoke all on table public.curated_words from anon, authenticated;
+grant select on table public.curated_words to anon, authenticated;
+grant all on table public.curated_words to service_role;
 
-create policy "Published words are publicly readable"
-on public.words
+create policy "Published curated words are publicly readable"
+on public.curated_words
 for select
 to anon, authenticated
 using (status = 'published');
 
-comment on table public.words is
-  'Vocabulary entries where each row represents one word sense.';
+comment on table public.curated_words is
+  'Curated vocabulary entries where each row represents one word sense.';
 
-comment on column public.words.definition is
+comment on column public.curated_words.definition is
   'English definition of the word sense.';
