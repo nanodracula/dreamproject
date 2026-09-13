@@ -4,16 +4,28 @@ set -euo pipefail
 repo_root=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 cd "$repo_root/apps/ios"
 
+action="${1:-}"
+if [ "$#" -gt 0 ]; then shift; fi
+
+# `--release` builds the optimized configuration; other arguments go to xcodebuild.
+configuration=Debug
+passthrough=()
+for arg in "$@"; do
+  if [ "$arg" = "--release" ]; then
+    configuration=Release
+  else
+    passthrough+=("$arg")
+  fi
+done
+set -- "${passthrough[@]+"${passthrough[@]}"}"
+
 xcode() {
   xcodebuild \
     -project DreamApp.xcodeproj \
     -scheme DreamApp \
-    -configuration Debug \
+    -configuration "$configuration" \
     "$@"
 }
-
-action="${1:-}"
-if [ "$#" -gt 0 ]; then shift; fi
 
 case "$action" in
   build)
@@ -30,14 +42,14 @@ case "$action" in
     if [ -n "${IOS_SIMULATOR_ID:-}" ]; then
       destination="platform=iOS Simulator,id=$IOS_SIMULATOR_ID"
     fi
-    derived_data="$HOME/Library/Developer/Xcode/DerivedData/DreamApp-Run"
+    derived_data="$HOME/Library/Developer/Xcode/DerivedData/DreamApp-Run-$configuration"
 
     xcrun simctl bootstatus "$simulator" -b
     open -a Simulator
     xcode -destination "$destination" \
       -derivedDataPath "$derived_data" build
 
-    app="$derived_data/Build/Products/Debug-iphonesimulator/DreamApp.app"
+    app="$derived_data/Build/Products/$configuration-iphonesimulator/DreamApp.app"
     bundle_id=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
     xcrun simctl install "$simulator" "$app"
     xcrun simctl launch --terminate-running-process "$simulator" "$bundle_id"
@@ -45,13 +57,13 @@ case "$action" in
 
   run-device)
     device="${IOS_DEVICE_NAME:-iPhone Pro (Vlad)}"
-    derived_data="$HOME/Library/Developer/Xcode/DerivedData/DreamApp-Device"
+    derived_data="$HOME/Library/Developer/Xcode/DerivedData/DreamApp-Device-$configuration"
 
     xcode -destination "platform=iOS,name=$device" \
       -derivedDataPath "$derived_data" \
       -allowProvisioningUpdates build
 
-    app="$derived_data/Build/Products/Debug-iphoneos/DreamApp.app"
+    app="$derived_data/Build/Products/$configuration-iphoneos/DreamApp.app"
     bundle_id=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
     xcrun devicectl device install app --device "$device" "$app"
 
@@ -70,7 +82,7 @@ case "$action" in
     ;;
 
   *)
-    echo "Usage: bash tools/run-ios.sh build|test|run|run-device" >&2
+    echo "Usage: bash tools/run-ios.sh build|test|run|run-device [--release]" >&2
     exit 2
     ;;
 esac
