@@ -17,6 +17,11 @@
 
 Features may use shared layers but never depend on each other. Shared layers never depend on features.
 
+## Features folder
+
+- The root screen lives directly in the feature folder. When a feature has multiple screens, each further screen gets its own folder.
+- A screen's folder holds its view, its view model, and the files only that screen uses.
+
 ## UI and business logic
 
 - Views render state and forward actions. They may own view-local interaction state. Keep persistence, networking, and non-UI platform integrations outside views.

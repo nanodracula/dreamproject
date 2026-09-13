@@ -54,7 +54,19 @@ case "$action" in
     app="$derived_data/Build/Products/Debug-iphoneos/DreamApp.app"
     bundle_id=$(/usr/libexec/PlistBuddy -c 'Print CFBundleIdentifier' "$app/Info.plist")
     xcrun devicectl device install app --device "$device" "$app"
-    xcrun devicectl device process launch --device "$device" --terminate-existing "$bundle_id"
+
+    # A locked phone refuses launches; the app is installed, so just say so.
+    launch_log=$(mktemp)
+    if ! xcrun devicectl device process launch --device "$device" --terminate-existing "$bundle_id" >"$launch_log" 2>&1; then
+      if grep -q "could not be, unlocked" "$launch_log"; then
+        echo "Installed. Phone is locked, so open DreamApp Dev manually." >&2
+      else
+        cat "$launch_log" >&2
+        rm -f "$launch_log"
+        exit 1
+      fi
+    fi
+    rm -f "$launch_log"
     ;;
 
   *)
