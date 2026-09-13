@@ -365,13 +365,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "%(language)@ learning"
+            "value": "%@ learning"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Вивчення: %(language)@"
+            "value": "Вивчення: %@"
           }
         }
       }
@@ -451,13 +451,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove audio downloads · %(size)@"
+            "value": "Remove audio downloads · %@"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Видалити завантажене аудіо · %(size)@"
+            "value": "Видалити завантажене аудіо · %@"
           }
         }
       }
@@ -554,13 +554,13 @@
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Remove image downloads · %(size)@"
+            "value": "Remove image downloads · %@"
           }
         },
         "uk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Видалити завантажені зображення · %(size)@"
+            "value": "Видалити завантажені зображення · %@"
           }
         }
       }

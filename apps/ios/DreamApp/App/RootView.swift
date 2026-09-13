@@ -14,7 +14,11 @@ struct RootView: View {
                 ForEach(AppDestination.allCases, id: \.self) { destination in
                     let isSelected = destination == selectedDestination
                     NavigationStack {
-                        PlaceholderScreen(destination: destination)
+                        if destination == .settings {
+                            SettingsView()
+                        } else {
+                            PlaceholderScreen(destination: destination)
+                        }
                     }
                     .zIndex(isSelected ? 1 : 0)
                     .allowsHitTesting(isSelected)
