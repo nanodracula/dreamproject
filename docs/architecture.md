@@ -5,6 +5,7 @@
 - Organize files by domain concept, not by type or size. Split only when concepts change for different reasons.
 - Keep feature-specific code within its feature.
 - Create folders and abstractions only when needed.
+- Prefer direct calls until an abstraction solves an actual problem.
 
 ## Layers
 
@@ -44,8 +45,3 @@ App assembles features and shared dependencies. Features may use shared layers b
 - Prefer concrete types. Introduce protocols when consumers benefit from interchangeable implementations or separation from external systems.
 - Keep feature-local contracts and implementations within the feature when possible. Move contracts into Core or another appropriate shared layer when shared consumers or dependency direction require it.
 - SharedUI components receive the data and actions they need. They must not depend on feature-specific view models or construct repositories and services internally.
-
-## Complexity
-
-- Prefer direct calls until an abstraction solves an actual problem.
-- Start with folder boundaries. Extract modules or packages when compiler-enforced separation provides a clear benefit.
