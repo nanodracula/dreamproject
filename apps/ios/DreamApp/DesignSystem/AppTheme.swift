@@ -10,6 +10,8 @@ enum AppColors {
     static let textSecondary = Color(hex: 0xB0B4BA)
     static let accent = Color(hex: 0x62B0FF)
     static let accentSoft = Color(hex: 0x173B5C)
+    /// Shared with the launch screen so the loading phase continues it.
+    static let launchBackground = Color("LaunchBackground")
 }
 
 /// Shared spacing for custom layouts, measured in points.

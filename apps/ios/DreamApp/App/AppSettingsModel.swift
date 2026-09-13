@@ -9,10 +9,12 @@ import Observation
 /// The user scope is fixed per instance. Account switching replaces the
 /// model and its repository and restarts observation.
 @MainActor @Observable
-final class SettingsModel {
+final class AppSettingsModel {
     /// The last committed snapshot; `nil` until the first load.
     private(set) var snapshot: SettingsSnapshot?
     private(set) var isSaving = false
+    /// True after the current observation has delivered a snapshot.
+    private(set) var isObservationReady = false
     /// Why observation stopped; `nil` while it is healthy.
     private(set) var loadError: (any Error)?
     /// Changes on retry. Key the `.task` that runs `observe()` on it.
@@ -32,7 +34,7 @@ final class SettingsModel {
 
     /// Editing waits for the first load and pauses during a save or a broken
     /// observation, which would hide the committed result.
-    var canEdit: Bool { snapshot != nil && loadError == nil && !isSaving }
+    var canEdit: Bool { isObservationReady && loadError == nil && !isSaving }
 
     var nativeLanguageCode: String? { snapshot?.account.nativeLanguage }
 
@@ -65,10 +67,13 @@ final class SettingsModel {
 
     /// Loads the saved values and keeps them current until cancelled.
     func observe() async {
+        isObservationReady = false
+        defer { isObservationReady = false }
         loadError = nil
         do {
             for try await snapshot in repository.observeSnapshot() {
                 self.snapshot = snapshot
+                isObservationReady = true
             }
         } catch {
             guard !Task.isCancelled else { return }

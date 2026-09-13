@@ -3,7 +3,7 @@ import SwiftUI
 /// Settings of one enrolled learning language.
 struct LearningSettingsView: View {
     let languageCode: String
-    @Environment(SettingsModel.self) private var settings
+    @Environment(AppSettingsModel.self) private var settings
 
     private var language: LearningLanguage? { LearningLanguage.with(code: languageCode) }
 

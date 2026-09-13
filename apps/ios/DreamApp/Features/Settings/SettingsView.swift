@@ -9,7 +9,7 @@ enum SettingsRoute: Hashable {
 /// grouped palette matches the old app's values exactly, so no colors are set.
 struct SettingsView: View {
     @Environment(AppDependencies.self) private var dependencies
-    @Environment(SettingsModel.self) private var settings
+    @Environment(AppSettingsModel.self) private var settings
 
     private var canAdd: Bool { settings.enrolledLanguages.count < LearningLanguage.all.count }
 
@@ -137,7 +137,7 @@ extension View {
 }
 
 private struct SettingsSaveErrorAlert: ViewModifier {
-    @Environment(SettingsModel.self) private var settings
+    @Environment(AppSettingsModel.self) private var settings
 
     func body(content: Content) -> some View {
         content.alert(

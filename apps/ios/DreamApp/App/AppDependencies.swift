@@ -10,7 +10,7 @@ final class AppDependencies {
     let settingsRepository: SettingsRepository
     /// Account settings of the current user, injected into the SwiftUI
     /// environment on its own.
-    let settings: SettingsModel
+    let settings: AppSettingsModel
     /// The shared Supabase client. Feature request clients, such as
     /// `CardTitleGeneration`, are built from it.
     let supabase: SupabaseClient
@@ -29,15 +29,20 @@ final class AppDependencies {
         self.supabase = supabase
         // The guest user until authentication exists.
         settingsRepository = SettingsRepository(writer: database.writer, userID: AppDatabase.guestUserID)
-        settings = SettingsModel(repository: settingsRepository)
+        settings = AppSettingsModel(repository: settingsRepository)
         supabaseSession = SupabaseSession(auth: supabase.auth)
         mediaUploader = MediaUploader(supabase: supabase, session: supabaseSession)
         mediaCache = MediaCache(supabase: supabase)
         pronunciation = Pronunciation(cache: mediaCache)
     }
 
-    /// Opens the persistent database and wires production services.
-    static func live() throws -> AppDependencies {
-        AppDependencies(database: try AppDatabase.openPersistent())
+    /// Opens and migrates the database off the main actor, then wires the
+    /// services on the main actor. Construction does not wait for network IO.
+    static func live() async throws -> AppDependencies {
+        let database = try await Task.detached(priority: .userInitiated) {
+            try AppDatabase.openPersistent()
+        }.value
+        try Task.checkCancellation()
+        return AppDependencies(database: database)
     }
 }

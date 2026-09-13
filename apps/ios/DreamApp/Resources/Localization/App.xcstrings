@@ -1,0 +1,28 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "startupErrorTitle" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn’t open DreamApp"
+          }
+        }
+      }
+    },
+    "startupRetry" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

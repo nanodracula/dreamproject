@@ -5,7 +5,7 @@ import SwiftUI
 /// one language enrolled. A dropped language keeps its preferences for when
 /// it is turned on again.
 struct LanguagesSettingsView: View {
-    @Environment(SettingsModel.self) private var settings
+    @Environment(AppSettingsModel.self) private var settings
 
     var body: some View {
         List {
