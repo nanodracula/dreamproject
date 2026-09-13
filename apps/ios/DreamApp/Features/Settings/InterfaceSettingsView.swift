@@ -1,7 +1,8 @@
 import SwiftUI
 
 struct InterfaceSettingsView: View {
-    @State private var autoplayPronunciation = false
+    @AppStorage(DeviceSettings.Keys.autoplayPronunciation)
+    private var autoplayPronunciation = false
 
     var body: some View {
         List {

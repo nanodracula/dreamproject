@@ -2,7 +2,7 @@ import SwiftUI
 
 /// Settings of the active learning language.
 struct LearningSettingsView: View {
-    let language = LearningLanguage.japanese
+    let language: LearningLanguage
     @State private var knowledgeLevel = KnowledgeLevel.beginner
     @State private var writingDisplayMode = WritingDisplayMode.standardOnly
 
@@ -26,7 +26,9 @@ struct LearningSettingsView: View {
                         ForEach(language.availableWritingDisplayModes, id: \.self) { mode in
                             Text(modeLabel(mode)).tag(mode)
                         }
-                    } label: { EmptyView() }
+                    } label: {
+                        Text("writingDisplayModeLabel", tableName: "Settings")
+                    }
                     .pickerStyle(.inline)
                     .labelsHidden()
                 } header: {
@@ -82,7 +84,7 @@ extension LearningLanguage {
 
 #Preview {
     NavigationStack {
-        LearningSettingsView()
+        LearningSettingsView(language: .japanese)
     }
     .preferredColorScheme(.dark)
 }

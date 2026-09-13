@@ -1,8 +1,10 @@
 import SwiftUI
 
 struct SyncSettingsView: View {
-    @State private var offlineAudio = false
-    @State private var offlinePhotos = false
+    @AppStorage(DeviceSettings.Keys.offlineAudio)
+    private var offlineAudio = false
+    @AppStorage(DeviceSettings.Keys.offlinePhotos)
+    private var offlinePhotos = false
 
     var body: some View {
         List {

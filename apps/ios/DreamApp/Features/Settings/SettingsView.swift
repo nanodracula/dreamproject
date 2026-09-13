@@ -9,7 +9,7 @@ enum SettingsRoute: Hashable {
 /// grouped palette matches the old app's values exactly, so no colors are set.
 struct SettingsView: View {
     @Environment(AppDependencies.self) private var dependencies
-    // Visual placeholders until settings are read from the database.
+    // Shared by the settings screens until account settings are connected to the database.
     @State private var activeLanguage = LearningLanguage.japanese.code
     @State private var enrolled = [LearningLanguage.japanese, .korean]
 
@@ -22,7 +22,9 @@ struct SettingsView: View {
                     ForEach(enrolled) { language in
                         Text("\(language.emoji) \(language.nativeName)").tag(language.code)
                     }
-                } label: { EmptyView() }
+                } label: {
+                    Text("learningLanguageLabel", tableName: "Settings")
+                }
                 .pickerStyle(.inline)
                 .labelsHidden()
 
@@ -78,13 +80,19 @@ struct SettingsView: View {
             switch route {
             case .general: GeneralSettingsView()
             case .interface: InterfaceSettingsView()
-            case .learning: LearningSettingsView()
-            case .languages: LanguagesSettingsView()
+            case .learning:
+                if let language = LearningLanguage.with(code: activeLanguage) {
+                    LearningSettingsView(language: language)
+                }
+            case .languages:
+                LanguagesSettingsView(enrolled: $enrolled, activeLanguage: $activeLanguage)
             case .sync: SyncSettingsView()
             case .dev: DevView(database: dependencies.database)
             case .terminal: TerminalView()
             }
         }
+        // Declared outside `navigationDestination`, so every pushed screen inherits it.
+        .scrollIndicators(.hidden)
     }
 }
 

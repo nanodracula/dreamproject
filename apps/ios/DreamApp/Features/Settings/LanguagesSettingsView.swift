@@ -4,8 +4,8 @@ import SwiftUI
 /// it active; the active one cannot be turned off, which also keeps at least
 /// one language enrolled.
 struct LanguagesSettingsView: View {
-    @State private var enrolled: Set<String> = ["ja", "ko"]
-    @State private var activeLanguage = "ja"
+    @Binding var enrolled: [LearningLanguage]
+    @Binding var activeLanguage: String
 
     var body: some View {
         List {
@@ -27,13 +27,15 @@ struct LanguagesSettingsView: View {
 
     private func enrollment(of language: LearningLanguage) -> Binding<Bool> {
         Binding(
-            get: { enrolled.contains(language.code) },
+            get: { enrolled.contains(language) },
             set: { isOn in
                 if isOn {
-                    enrolled.insert(language.code)
+                    if !enrolled.contains(language) {
+                        enrolled.append(language)
+                    }
                     activeLanguage = language.code
                 } else {
-                    enrolled.remove(language.code)
+                    enrolled.removeAll { $0.code == language.code }
                 }
             }
         )
@@ -41,8 +43,11 @@ struct LanguagesSettingsView: View {
 }
 
 #Preview {
+    @Previewable @State var enrolled = [LearningLanguage.japanese, .korean]
+    @Previewable @State var activeLanguage = LearningLanguage.japanese.code
+
     NavigationStack {
-        LanguagesSettingsView()
+        LanguagesSettingsView(enrolled: $enrolled, activeLanguage: $activeLanguage)
     }
     .preferredColorScheme(.dark)
 }
