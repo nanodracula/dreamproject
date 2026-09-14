@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// A destination the `GlassNavigation` bar can show.
-nonisolated protocol GlassNavigationItem: Hashable {
+/// A destination the `MainNavigation` bar can show.
+nonisolated protocol MainNavigationItem: Hashable {
     var title: LocalizedStringResource { get }
     /// SF Symbol shown while the item is not selected.
     var symbol: String { get }
@@ -10,7 +10,7 @@ nonisolated protocol GlassNavigationItem: Hashable {
 }
 
 /// Layout values shared with the screen that positions the bar.
-enum GlassNavigationMetrics {
+enum MainNavigationMetrics {
     static let height: CGFloat = 58
     /// Horizontal distance from the screen edges.
     static let sideInset: CGFloat = 32
@@ -21,7 +21,7 @@ enum GlassNavigationMetrics {
 /// A floating Liquid Glass capsule with icon-only destinations. Selection is shown by a
 /// translucent pill whose edges move on separate springs, so it stretches
 /// toward the new destination and settles behind it.
-struct GlassNavigation<Item: GlassNavigationItem>: View {
+struct MainNavigation<Item: MainNavigationItem>: View {
     let items: [Item]
     @Binding var selection: Item
 
@@ -52,14 +52,12 @@ struct GlassNavigation<Item: GlassNavigationItem>: View {
         }
         .frame(height: Layout.pillHeight)
         .padding(Layout.inset)
-        .frame(height: GlassNavigationMetrics.height)
+        .frame(height: MainNavigationMetrics.height)
         .glassEffect(.regular, in: .capsule)
         .overlay {
             Capsule().strokeBorder(Palette.border, lineWidth: Layout.borderWidth)
         }
         .clipShape(Capsule())
-        .accessibilityElement(children: .contain)
-        .accessibilityLabel(Text("Navigation"))
         .onChange(of: selection) { _, newValue in
             movePill(to: items.firstIndex(of: newValue) ?? 0)
         }
@@ -121,7 +119,7 @@ private enum Layout {
     static let padding: CGFloat = 6
     static let borderWidth: CGFloat = 1
     static let inset = padding + borderWidth
-    static let pillHeight = GlassNavigationMetrics.height - inset * 2
+    static let pillHeight = MainNavigationMetrics.height - inset * 2
     static let iconSize: CGFloat = 23
 }
 
@@ -154,7 +152,7 @@ private struct SlotButtonStyle: ButtonStyle {
 }
 
 #Preview {
-    nonisolated struct PreviewItem: GlassNavigationItem {
+    nonisolated struct PreviewItem: MainNavigationItem {
         let title: LocalizedStringResource
         let symbol: String
         let selectedSymbol: String
@@ -171,8 +169,8 @@ private struct SlotButtonStyle: ButtonStyle {
         @State private var selection: PreviewItem
         init() { _selection = State(initialValue: items[0]) }
         var body: some View {
-            GlassNavigation(items: items, selection: $selection)
-                .padding(.horizontal, GlassNavigationMetrics.sideInset)
+            MainNavigation(items: items, selection: $selection)
+                .padding(.horizontal, MainNavigationMetrics.sideInset)
                 .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
                 .background(AppColors.background)
         }

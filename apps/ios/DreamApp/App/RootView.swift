@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The top-level destinations, in navigation order.
-nonisolated private enum AppDestination: CaseIterable, GlassNavigationItem {
+nonisolated private enum AppDestination: CaseIterable, MainNavigationItem {
     case dictionary
     case feed
     case add
@@ -35,32 +35,31 @@ nonisolated private enum AppDestination: CaseIterable, GlassNavigationItem {
 
 /// Hosts a navigation stack per tab, with a custom glass bar in the bottom safe area.
 struct RootView: View {
+    @Environment(AppDependencies.self) private var dependencies
+    @Environment(AppSettingsModel.self) private var settings
     @State private var selectedDestination: AppDestination = .dictionary
 
     var body: some View {
-        TabView(selection: $selectedDestination) {
-            ForEach(AppDestination.allCases, id: \.self) { destination in
-                Tab(value: destination) {
-                    NavigationStack {
-                        if destination == .settings {
-                            SettingsView()
-                        } else {
-                            PlaceholderView(destination: destination)
-                        }
-                    }
-                    .toolbarVisibility(.hidden, for: .tabBar)
-                } label: {
-                    Label {
-                        Text(destination.title)
-                    } icon: {
-                        Image(systemName: destination.symbol)
-                    }
+        ScreenTransitionView(items: AppDestination.allCases, selection: selectedDestination) { destination in
+            NavigationStack {
+                if destination == .settings {
+                    SettingsView()
+                } else {
+                    PlaceholderView(destination: destination)
                 }
             }
+            .safeAreaInset(edge: .bottom, spacing: MainNavigationMetrics.contentGap) {
+                Color.clear.frame(height: MainNavigationMetrics.height)
+            }
+            .environment(dependencies)
+            .environment(settings)
         }
-        .safeAreaInset(edge: .bottom, spacing: GlassNavigationMetrics.contentGap) {
-            GlassNavigation(items: AppDestination.allCases, selection: $selectedDestination)
-                .padding(.horizontal, GlassNavigationMetrics.sideInset)
+        // UIKit owns the screen's safe areas. The bar overlays it, while each
+        // hosted screen reserves scrolling space without clipping its background.
+        .ignoresSafeArea(.container)
+        .overlay(alignment: .bottom) {
+            MainNavigation(items: AppDestination.allCases, selection: $selectedDestination)
+                .padding(.horizontal, MainNavigationMetrics.sideInset)
         }
         .background(AppColors.background)
     }
