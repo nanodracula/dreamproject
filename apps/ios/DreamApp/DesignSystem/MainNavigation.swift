@@ -18,137 +18,148 @@ enum MainNavigationMetrics {
     static let contentGap: CGFloat = 4
 }
 
-/// A floating Liquid Glass capsule with icon-only destinations. Selection is shown by a
-/// translucent pill whose edges move on separate springs, so it stretches
-/// toward the new destination and settles behind it.
+/// A floating Liquid Glass bar whose selection stretches toward its destination.
 struct MainNavigation<Item: MainNavigationItem>: View {
     let items: [Item]
     @Binding var selection: Item
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// Pill edges in slot units: 0 is the leading edge of the first slot.
-    @State private var pillStart: CGFloat
-    @State private var pillEnd: CGFloat
+    @State private var position: PillPosition
+    @State private var movingForward = false
 
     init(items: [Item], selection: Binding<Item>) {
         self.items = items
         _selection = selection
         let index = CGFloat(items.firstIndex(of: selection.wrappedValue) ?? 0)
-        _pillStart = State(initialValue: index)
-        _pillEnd = State(initialValue: index + 1)
+        _position = State(initialValue: PillPosition(start: index, end: index + 1))
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            let slotWidth = proxy.size.width / CGFloat(max(items.count, 1))
-            ZStack(alignment: .leading) {
-                pill(slotWidth: slotWidth)
-                HStack(spacing: 0) {
-                    ForEach(items, id: \.self) { item in
-                        slot(for: item)
-                    }
+        GeometryReader { geometry in
+            let slotWidth = geometry.size.width / CGFloat(max(items.count, 1))
+
+            AnimatedPillEdge(value: position.start) { start in
+                AnimatedPillEdge(value: position.end) { end in
+                    bar(position: PillPosition(start: start, end: end), slotWidth: slotWidth)
                 }
+                .animation(
+                    reduceMotion ? nil : .spring(movingForward ? Motion.leadingEdge : Motion.trailingEdge),
+                    value: position.end
+                )
             }
+            .animation(
+                reduceMotion ? nil : .spring(movingForward ? Motion.trailingEdge : Motion.leadingEdge),
+                value: position.start
+            )
         }
         .frame(height: Layout.pillHeight)
         .padding(Layout.inset)
         .frame(height: MainNavigationMetrics.height)
-        .glassEffect(.regular, in: .capsule)
-        .overlay {
-            Capsule().strokeBorder(Palette.border, lineWidth: Layout.borderWidth)
-        }
-        .clipShape(Capsule())
+        .glassEffect(.regular.interactive(!reduceMotion), in: .capsule)
         .onChange(of: selection) { _, newValue in
-            movePill(to: items.firstIndex(of: newValue) ?? 0)
+            let index = CGFloat(items.firstIndex(of: newValue) ?? 0)
+            movingForward = index > position.center
+            position = PillPosition(start: index, end: index + 1)
         }
     }
 
-    private func pill(slotWidth: CGFloat) -> some View {
-        Capsule()
-            .fill(Palette.pill)
-            .frame(width: (pillEnd - pillStart) * slotWidth, height: Layout.pillHeight)
-            .offset(x: pillStart * slotWidth)
-            // Under Reduce Motion the pill crossfades between slots instead of sliding.
-            .id(reduceMotion ? Int(pillStart) : 0)
-            .transition(.opacity)
+    private func bar(position: PillPosition, slotWidth: CGFloat) -> some View {
+        ZStack(alignment: .leading) {
+            if !reduceMotion {
+                Capsule()
+                    .fill(Palette.pill)
+                    .frame(width: slotWidth, height: Layout.pillHeight)
+                    .scaleEffect(x: max(0.01, position.end - position.start), y: 1)
+                    .offset(x: position.center * slotWidth)
+                    .allowsHitTesting(false)
+            }
+            HStack(spacing: 0) {
+                ForEach(Array(items.enumerated()), id: \.element) { index, item in
+                    slot(for: item, fill: max(0, 1 - abs(position.center - CGFloat(index))))
+                }
+            }
+            .animation(reduceMotion ? Motion.reduced : nil, value: selection)
+        }
     }
 
-    private func slot(for item: Item) -> some View {
+    private func slot(for item: Item, fill: CGFloat) -> some View {
         let isSelected = item == selection
+        let glyphFill = reduceMotion ? (isSelected ? 1.0 : 0.0) : Double(fill)
         return Button {
             selection = item
         } label: {
             ZStack {
-                Image(systemName: item.symbol)
-                    .opacity(isSelected ? 0 : 1)
-                Image(systemName: item.selectedSymbol)
-                    .opacity(isSelected ? 1 : 0)
+                symbol(item.symbol, color: Palette.inactiveGlyph)
+                    .opacity(1 - glyphFill)
+                symbol(item.selectedSymbol, color: Palette.activeGlyph)
+                    .opacity(glyphFill)
             }
-            .font(.system(size: Layout.iconSize))
-            .foregroundStyle(isSelected ? Palette.activeGlyph : Palette.inactiveGlyph)
-            .animation(Motion.glyphCrossfade, value: isSelected)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background {
+                if reduceMotion {
+                    Capsule()
+                        .fill(Palette.pill)
+                        .opacity(isSelected ? 1 : 0)
+                }
+            }
             .contentShape(Rectangle())
         }
-        .buttonStyle(SlotButtonStyle(animation: reduceMotion ? nil : Motion.icon))
+        .buttonStyle(.plain)
         .accessibilityLabel(Text(item.title))
         .accessibilityAddTraits(isSelected ? .isSelected : [])
     }
 
-    private func movePill(to index: Int) {
-        let start = CGFloat(index)
-        let end = start + 1
-        if reduceMotion {
-            withAnimation(Motion.reduced) {
-                pillStart = start
-                pillEnd = end
-            }
-            return
-        }
-        let movingForward = start > pillStart
-        withAnimation(Motion.leadingEdge) {
-            if movingForward { pillEnd = end } else { pillStart = start }
-        }
-        withAnimation(Motion.trailingEdge) {
-            if movingForward { pillStart = start } else { pillEnd = end }
-        }
+    private func symbol(_ name: String, color: Color) -> some View {
+        Image(systemName: name)
+            .resizable()
+            .scaledToFit()
+            .symbolRenderingMode(.monochrome)
+            .fontWeight(.regular)
+            .foregroundStyle(color)
+            .frame(width: Layout.iconSize, height: Layout.iconSize)
     }
 }
 
+/// Each edge gets its own spring and retains its presentation value when
+/// retargeted. The content receives those values for both geometry and icon fill.
+private struct AnimatedPillEdge<Content: View>: View, Animatable {
+    var value: CGFloat
+    let content: (CGFloat) -> Content
+
+    var animatableData: CGFloat {
+        get { value }
+        set { value = newValue }
+    }
+
+    var body: some View { content(value) }
+}
+
+/// Both edges are measured in slots. Icon fill uses their interpolated center,
+/// so it follows the visible pill even when a new tap interrupts the springs.
+private struct PillPosition {
+    var start: CGFloat
+    var end: CGFloat
+
+    var center: CGFloat { (start + end) / 2 - 0.5 }
+}
+
 private enum Layout {
-    static let padding: CGFloat = 6
-    static let borderWidth: CGFloat = 1
-    static let inset = padding + borderWidth
+    static let inset: CGFloat = 7
     static let pillHeight = MainNavigationMetrics.height - inset * 2
     static let iconSize: CGFloat = 23
 }
 
 private enum Palette {
-    static let border = Color.white.opacity(0.12)
     static let pill = Color.white.opacity(0.14)
     static let activeGlyph = Color(hex: 0xE9ECEF)
     static let inactiveGlyph = Color(hex: 0xB0B4BA)
 }
 
 private enum Motion {
-    /// Pill edge racing ahead toward the new destination.
-    static let leadingEdge = Animation.spring(Spring(mass: 0.7, stiffness: 400, damping: 30))
-    /// Pill edge catching up.
-    static let trailingEdge = Animation.spring(Spring(mass: 0.9, stiffness: 240, damping: 28))
-    static let icon = Animation.spring(Spring(mass: 0.6, stiffness: 300, damping: 14))
-    static let glyphCrossfade = Animation.easeInOut(duration: 0.2)
-    static let reduced = Animation.easeInOut(duration: 0.2)
-}
-
-/// Lifts the glyph slightly while pressed; no motion when `animation` is nil.
-private struct SlotButtonStyle: ButtonStyle {
-    let animation: Animation?
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .scaleEffect(configuration.isPressed && animation != nil ? 1.06 : 1)
-            .animation(animation, value: configuration.isPressed)
-    }
+    // Each edge settles on its own spring; there is no fixed-duration cutoff.
+    static let leadingEdge = Spring(mass: 0.7, stiffness: 400, damping: 30)
+    static let trailingEdge = Spring(mass: 0.9, stiffness: 240, damping: 28)
+    static let reduced = Animation.easeOut(duration: 0.1)
 }
 
 #Preview {
