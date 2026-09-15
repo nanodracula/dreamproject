@@ -1,25 +1,7 @@
 import SwiftUI
 
-/// A destination the `MainNavigation` bar can show.
-nonisolated protocol MainNavigationItem: Hashable {
-    var title: LocalizedStringResource { get }
-    /// SF Symbol shown while the item is not selected.
-    var symbol: String { get }
-    /// SF Symbol shown while the item is selected.
-    var selectedSymbol: String { get }
-}
-
-/// Layout values shared with the screen that positions the bar.
-enum MainNavigationMetrics {
-    static let height: CGFloat = 58
-    /// Horizontal distance from the screen edges.
-    static let sideInset: CGFloat = 32
-    /// Gap kept between content and the top of the bar.
-    static let contentGap: CGFloat = 4
-}
-
 /// A floating Liquid Glass bar whose selection stretches toward its destination.
-struct MainNavigation<Item: MainNavigationItem>: View {
+struct MainNavigationOriginal<Item: MainNavigationItem>: MainNavigationBar {
     let items: [Item]
     @Binding var selection: Item
 
@@ -27,7 +9,15 @@ struct MainNavigation<Item: MainNavigationItem>: View {
     @State private var position: PillPosition
     @State private var movingForward = false
 
-    init(items: [Item], selection: Binding<Item>) {
+    static var metrics: MainNavigationMetrics {
+        MainNavigationMetrics(height: Layout.height, sideInset: 32)
+    }
+
+    init(
+        items: [Item],
+        selection: Binding<Item>,
+        contextActions _: (Item) -> [MainNavigationAction] = { _ in [] }
+    ) {
         self.items = items
         _selection = selection
         let index = CGFloat(items.firstIndex(of: selection.wrappedValue) ?? 0)
@@ -54,7 +44,7 @@ struct MainNavigation<Item: MainNavigationItem>: View {
         }
         .frame(height: Layout.pillHeight)
         .padding(Layout.inset)
-        .frame(height: MainNavigationMetrics.height)
+        .frame(height: Self.metrics.height)
         .glassEffect(.regular.interactive(!reduceMotion), in: .capsule)
         .onChange(of: selection) { _, newValue in
             let index = CGFloat(items.firstIndex(of: newValue) ?? 0)
@@ -144,8 +134,9 @@ private struct PillPosition {
 }
 
 private enum Layout {
+    static let height: CGFloat = 58
     static let inset: CGFloat = 7
-    static let pillHeight = MainNavigationMetrics.height - inset * 2
+    static let pillHeight = height - inset * 2
     static let iconSize: CGFloat = 23
 }
 
@@ -160,31 +151,4 @@ private enum Motion {
     static let leadingEdge = Spring(mass: 0.7, stiffness: 400, damping: 30)
     static let trailingEdge = Spring(mass: 0.9, stiffness: 240, damping: 28)
     static let reduced = Animation.easeOut(duration: 0.1)
-}
-
-#Preview {
-    nonisolated struct PreviewItem: MainNavigationItem {
-        let title: LocalizedStringResource
-        let symbol: String
-        let selectedSymbol: String
-
-        static func == (lhs: Self, rhs: Self) -> Bool { lhs.symbol == rhs.symbol }
-        func hash(into hasher: inout Hasher) { hasher.combine(symbol) }
-    }
-    struct Host: View {
-        let items = [
-            PreviewItem(title: "One", symbol: "books.vertical", selectedSymbol: "books.vertical.fill"),
-            PreviewItem(title: "Two", symbol: "rectangle.stack", selectedSymbol: "rectangle.stack.fill"),
-            PreviewItem(title: "Three", symbol: "plus.circle", selectedSymbol: "plus.circle.fill"),
-        ]
-        @State private var selection: PreviewItem
-        init() { _selection = State(initialValue: items[0]) }
-        var body: some View {
-            MainNavigation(items: items, selection: $selection)
-                .padding(.horizontal, MainNavigationMetrics.sideInset)
-                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                .background(AppColors.background)
-        }
-    }
-    return Host().preferredColorScheme(.dark)
 }

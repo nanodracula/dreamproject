@@ -7,7 +7,7 @@ deno = "2"
 # === 1. IOS
 
 [tasks."ios:build"]
-description = "Build DreamApp for iOS Simulator"
+description = "Build DreamApp for iOS Simulator."
 run = "bash tools/run-ios.sh build"
 
 [tasks."ios:run"]
